@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Antardasha — Your Five-Year Vedic Forecast</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8SWZG7RMM4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-8SWZG7RMM4');
+</script>
+<!-- End Google Analytics -->
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap');
 
@@ -225,6 +234,12 @@
   .funnel{text-align:center;padding:34px 20px;background:linear-gradient(180deg,#fbf7ee,var(--parchment));border:1px dashed var(--line);border-radius:4px;margin-top:18px}
   .funnel-q{font-family:'Fraunces',serif;font-size:21px;color:var(--ink);margin-bottom:18px}
   .funnel-btn{font-size:16px}
+  .coming-soon{margin-top:18px;text-align:center;background:linear-gradient(165deg,var(--night),var(--night-2));color:#e8e2d4;padding:48px 40px;position:relative;overflow:hidden}
+  .coming-soon::after{content:"";position:absolute;inset:0;background:radial-gradient(500px 260px at 50% 0%,rgba(217,169,78,.16),transparent 65%);pointer-events:none}
+  .cs-badge{display:inline-block;font-family:'Spline Sans Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#241a08;background:linear-gradient(180deg,var(--gold-bright),var(--gold));padding:6px 16px;border-radius:2px;margin-bottom:22px;position:relative}
+  .cs-title{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(24px,3.4vw,34px);color:#f3ecdd;margin-bottom:18px;position:relative;line-height:1.15}
+  .cs-text{font-size:16.5px;line-height:1.7;color:#c2c8dd;max-width:56ch;margin:0 auto 14px;position:relative}
+  .cs-spark{font-size:26px;color:var(--gold-bright);margin-top:18px;position:relative}
   .spinner{width:34px;height:34px;border:3px solid var(--line-soft);border-top-color:var(--gold);border-radius:50%;margin:0 auto 20px;animation:spin .9s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -558,14 +573,18 @@ async function showMonth(){
 
 async function showForecast(){
   const btn=document.getElementById('fiveBtn');
-  btn.textContent='Casting your five-year forecast…';btn.disabled=true;
-  try{
-    const r=await fetch('/api/forecast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(birth)});
-    const data=await r.json();
-    const block=document.createElement('div');
-    block.innerHTML=renderForecastHTML(data,birth.place);
-    btn.closest('.funnel').replaceWith(block);
-  }catch(e){btn.textContent='Could not load — try again';btn.disabled=false;}
+  // record the interest (Google Analytics event, if present)
+  if(window.gtag){gtag('event','five_year_interest',{event_category:'engagement',event_label:'coming_soon_click'});}
+  const block=document.createElement('div');
+  block.innerHTML=`
+    <div class="chart-card coming-soon">
+      <div class="cs-badge">Coming soon</div>
+      <h3 class="cs-title">Your full five-year forecast is on its way.</h3>
+      <p class="cs-text">A deep, personal reading of where the next five years are taking your career, wealth, relationships, and life — month by month, turning point by turning point. We're putting the finishing touches on it.</p>
+      <p class="cs-text" style="font-weight:500;color:#f3ecdd">You're clearly someone who wants the bigger picture — and we'd love to give it to you. This feature is launching shortly. Keep checking your daily reading; you'll be among the first to know when it's ready.</p>
+      <div class="cs-spark">✦</div>
+    </div>`;
+  btn.closest('.funnel').replaceWith(block);
 }
 
 function ordinal(n){if(10<=n%100&&n%100<=20)return n+'th';return n+({1:'st',2:'nd',3:'rd'}[n%10]||'th');}
