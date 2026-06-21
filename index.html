@@ -298,11 +298,11 @@
     <div class="field-grid">
       <div class="field">
         <label for="dob">Date of birth</label>
-        <input type="date" id="dob" value="1995-12-06">
+        <input type="date" id="dob">
       </div>
       <div class="field">
         <label for="tob">Time of birth</label>
-        <input type="time" id="tob" value="22:00">
+        <input type="time" id="tob">
         <span class="hint">If unknown, midday is a fallback — but accuracy drops.</span>
       </div>
       <div class="field">
@@ -390,8 +390,6 @@ const placeEl=document.getElementById('place');
     const list=await r.json();
     countrySel.innerHTML='<option value="">Select a country…</option>'+
       list.map(c=>`<option value="${c.cc}">${c.name}</option>`).join('');
-    // default to Nepal if present
-    if(list.some(c=>c.cc==='NP')){countrySel.value='NP';countrySel.dispatchEvent(new Event('change'));}
   }catch(e){
     countrySel.innerHTML='<option value="">Country list needs the engine running</option>';
   }
