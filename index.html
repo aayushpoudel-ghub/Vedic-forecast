@@ -203,6 +203,20 @@
   .reading p{font-size:16px;color:var(--ink);line-height:1.75}
   .reading p b{color:var(--ink);font-weight:600}
   .loading{text-align:center;padding:60px;font-family:'Spline Sans Mono',monospace;color:var(--ink-soft)}
+  /* daily / monthly / funnel */
+  .daily-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;border-bottom:1px solid var(--line-soft);padding-bottom:20px;margin-bottom:20px}
+  .daily-label{font-family:'Spline Sans Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px}
+  .daily-stars{font-size:34px;letter-spacing:6px;color:var(--gold);line-height:1}
+  .daily-meta{font-family:'Spline Sans Mono',monospace;font-size:13px;color:var(--ink-soft);text-align:right}
+  .daily-text{font-size:18px;line-height:1.7;color:var(--ink)}
+  .month-days{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+  .md-col{padding:16px 18px;border-radius:3px;font-size:16px;font-weight:500}
+  .md-col span{display:block;font-family:'Spline Sans Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;font-weight:400}
+  .md-good{background:rgba(93,202,165,.14);color:#1f6a52}.md-good span{color:#3f9479}
+  .md-hard{background:rgba(196,80,47,.1);color:#9a3a22}.md-hard span{color:#c4502f}
+  .funnel{text-align:center;padding:34px 20px;background:linear-gradient(180deg,#fbf7ee,var(--parchment));border:1px dashed var(--line);border-radius:4px;margin-top:18px}
+  .funnel-q{font-family:'Fraunces',serif;font-size:21px;color:var(--ink);margin-bottom:18px}
+  .funnel-btn{font-size:16px}
   .spinner{width:34px;height:34px;border:3px solid var(--line-soft);border-top-color:var(--gold);border-radius:50%;margin:0 auto 20px;animation:spin .9s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -229,11 +243,11 @@
     <div class="nav-tag">Sidereal · Lahiri Ayanāṁśa</div>
   </nav>
   <div class="hero-inner">
-    <div class="eyebrow">A five-year forecast, computed from the sky</div>
-    <h1>The chart you were born under, read for the years <em>ahead</em>.</h1>
-    <p class="lede">Enter a birth date, time, and place. We compute the real sidereal positions of the planets, your ascendant, and the Vimśottarī planetary periods that govern the next five years — then turn them into a clear, specific reading of career, wealth, and life.</p>
+    <div class="eyebrow">Your personal horoscope, computed from the sky</div>
+    <h1>A daily reading made for <em>your</em> stars — not everyone's.</h1>
+    <p class="lede">Most horoscopes give the same line to millions. This reads today's planets against <em>your</em> birth chart for a personal daily rating — then your month ahead, and the five-year arc of where your life is heading.</p>
     <div class="cta-row">
-      <a href="#cast" class="btn btn-primary">Cast a forecast</a>
+      <a href="#cast" class="btn btn-primary">Reveal my horoscope</a>
       <a href="#how" class="btn btn-ghost">How it works</a>
     </div>
   </div>
@@ -328,8 +342,8 @@
       </div>
     </div>
     <div class="submit-row">
-      <button class="btn-cast" id="castBtn">⊹ Compute my forecast</button>
-      <span class="submit-note">Runs the sidereal engine on the birth moment. Nothing is stored.</span>
+      <button class="btn-cast" id="castBtn">⊹ Reveal my horoscope</button>
+      <span class="submit-note">Your personal daily reading — computed from today's sky against your birth chart.</span>
     </div>
   </div>
 
@@ -433,6 +447,9 @@ document.getElementById('manualToggle').addEventListener('click',(e)=>{
   document.getElementById('manualBox').style.display=manualMode?'block':'none';
 });
 
+// store birth details once entered, so the funnel buttons can reuse them
+let birth=null;
+
 document.getElementById('castBtn').addEventListener('click',async()=>{
   const dob=document.getElementById('dob').value;
   const tob=document.getElementById('tob').value;
@@ -440,7 +457,6 @@ document.getElementById('castBtn').addEventListener('click',async()=>{
   let lon=parseFloat(lonEl.value);
   let place=placeEl.value;
 
-  // manual coordinates override
   const latM=parseFloat(document.getElementById('latM').value);
   const lonM=parseFloat(document.getElementById('lonM').value);
   if(!isNaN(latM)&&!isNaN(lonM)){lat=latM;lon=lonM;if(!place)place='Manual location';}
@@ -448,68 +464,116 @@ document.getElementById('castBtn').addEventListener('click',async()=>{
   if(!dob||!tob){alert('Please enter both date and time of birth.');return;}
   if(isNaN(lat)||isNaN(lon)){alert('Choose your country and city from the dropdowns, or open "enter coordinates manually".');return;}
 
-  const res=document.getElementById('result');
-  res.style.display='block';
-  res.innerHTML='<div class="loading"><div class="spinner"></div>Locating the sky at your birth moment…</div>';
-  res.scrollIntoView({behavior:'smooth',block:'start'});
-
   const [Y,M,D]=dob.split('-').map(Number);
   const [h,mi]=tob.split(':').map(Number);
+  birth={year:Y,month:M,day:D,hour:h,minute:mi,lat,lon,place};
+
+  const res=document.getElementById('result');
+  res.style.display='block';
+  res.innerHTML='<div class="loading"><div class="spinner"></div>Reading today\'s sky against your birth chart…</div>';
+  res.scrollIntoView({behavior:'smooth',block:'start'});
 
   try{
-    const r=await fetch('/api/forecast',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({year:Y,month:M,day:D,hour:h,minute:mi,lat,lon,place})
-    });
+    const r=await fetch('/api/daily',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(birth)});
     if(!r.ok) throw new Error('engine');
     const data=await r.json();
-    renderResult(data,place);
+    renderDaily(data);
   }catch(e){
     res.innerHTML='<div class="chart-card"><div class="reading"><h4>Engine offline</h4>'+
-      '<p>This page is the interface. To compute live charts it needs its Python engine running '+
-      '(<span style="font-family:monospace">app.py</span>, included with the project). '+
-      'Start that server and the form will return a full sidereal forecast here.</p></div></div>';
+      '<p>This page needs its Python engine running to compute readings.</p></div></div>';
   }
 });
 
-function renderResult(d,place){
+function stars(n){return '★'.repeat(n)+'☆'.repeat(5-n);}
+
+function renderDaily(d){
+  document.getElementById('result').innerHTML=`
+    <div class="chart-card">
+      <div class="daily-head">
+        <div>
+          <div class="daily-label">Your reading for ${d.date}</div>
+          <div class="daily-stars">${stars(d.stars)}</div>
+        </div>
+        <div class="daily-meta">${d.ascendant} rising · Moon in ${d.moon_sign}</div>
+      </div>
+      <p class="daily-text">${d.text}</p>
+    </div>
+    <div class="funnel">
+      <div class="funnel-q">Want to see how your whole month unfolds?</div>
+      <button class="btn-cast funnel-btn" id="monthBtn">◗ Show my month ahead</button>
+    </div>`;
+  document.getElementById('monthBtn').addEventListener('click',showMonth);
+}
+
+async function showMonth(){
+  const btn=document.getElementById('monthBtn');
+  btn.textContent='Reading your month…';btn.disabled=true;
+  try{
+    const r=await fetch('/api/monthly',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(birth)});
+    const d=await r.json();
+    const best=d.best_days.map(x=>ordinal(x)).join(', ');
+    const hard=d.hard_days.map(x=>ordinal(x)).join(', ');
+    const block=document.createElement('div');
+    block.innerHTML=`
+      <div class="chart-card" style="margin-top:18px">
+        <div class="daily-head">
+          <div>
+            <div class="daily-label">${d.month} ${d.year} · your month</div>
+            <div class="daily-stars">${stars(d.avg_stars)}</div>
+          </div>
+        </div>
+        <p class="daily-text">${d.text}</p>
+        <div class="month-days">
+          <div class="md-col md-good"><span>Favourable days</span>${best}</div>
+          <div class="md-col md-hard"><span>Take care</span>${hard}</div>
+        </div>
+      </div>
+      <div class="funnel">
+        <div class="funnel-q">Curious where the next five years are taking you?</div>
+        <button class="btn-cast funnel-btn" id="fiveBtn">✦ Reveal my 5-year forecast</button>
+      </div>`;
+    btn.closest('.funnel').replaceWith(block);
+    document.getElementById('fiveBtn').addEventListener('click',showForecast);
+  }catch(e){btn.textContent='Could not load — try again';btn.disabled=false;}
+}
+
+async function showForecast(){
+  const btn=document.getElementById('fiveBtn');
+  btn.textContent='Casting your five-year forecast…';btn.disabled=true;
+  try{
+    const r=await fetch('/api/forecast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(birth)});
+    const data=await r.json();
+    const block=document.createElement('div');
+    block.innerHTML=renderForecastHTML(data,birth.place);
+    btn.closest('.funnel').replaceWith(block);
+  }catch(e){btn.textContent='Could not load — try again';btn.disabled=false;}
+}
+
+function ordinal(n){if(10<=n%100&&n%100<=20)return n+'th';return n+({1:'st',2:'nd',3:'rd'}[n%10]||'th');}
+
+function renderForecastHTML(d,place){
   const c=d.chart, s=d.sections;
   const p=c.planets;
   const positions=Object.entries(p).map(([nm,v])=>
     `<div class="pos"><div class="pl">${nm}</div><div class="dt">${v.sign} ${v.deg}°${v.dignity?' · '+v.dignity:''}</div><div class="ho">House ${v.house} · ${v.nakshatra}${v.retrograde?' ℞':''}</div></div>`
   ).join('');
-
   const readingBlocks=[
-    ['Your foundation',s.foundation],
-    ['The period you are in',s.period],
-    ['Career & calling',s.career],
-    ['Wealth & finances',s.wealth],
-    ['Your five-year timeline',s.timeline],
-    ['Relationships',s.relationships],
-    ['Health & wellbeing',s.health],
-    ['Remedies',s.remedies]
+    ['Your foundation',s.foundation],['The period you are in',s.period],
+    ['Career & calling',s.career],['Wealth & finances',s.wealth],
+    ['Your five-year timeline',s.timeline],['Relationships',s.relationships],
+    ['Health & wellbeing',s.health],['Remedies',s.remedies]
   ].map(([t,txt])=>`<div class="reading"><h4>${t}</h4><p>${txt}</p></div>`).join('');
-
-  document.getElementById('result').innerHTML=`
-    <div class="chart-card">
+  return `<div class="chart-card" style="margin-top:18px">
       <div class="chart-top">
-        <div class="chart-id">
-          <h3>${c.ascendant.sign} Ascendant</h3>
-          <p>${place} · Asc ${c.ascendant.deg}° ${c.ascendant.nakshatra}${c.timezone?' · '+c.timezone:''}</p>
-        </div>
-        <div class="badges">
-          <div class="badge gold">${c.current_mahadasha} mahādaśā</div>
-          <div class="badge">${c.current_antardasha} antardaśā</div>
-          <div class="badge">until ${c.md_end}</div>
-        </div>
+        <div class="chart-id"><h3>${c.ascendant.sign} Ascendant</h3>
+          <p>${place} · Asc ${c.ascendant.deg}° ${c.ascendant.nakshatra}${c.timezone?' · '+c.timezone:''}</p></div>
+        <div class="badges"><div class="badge gold">${c.current_mahadasha} mahādaśā</div>
+          <div class="badge">${c.current_antardasha} antardaśā</div><div class="badge">until ${c.md_end}</div></div>
       </div>
       <div class="grid-positions">${positions}</div>
-    </div>
-    ${readingBlocks}
-    <div class="reading" style="border-left-color:var(--vermilion)">
-      <h4>Read in good faith</h4>
-      <p>These positions are computed exactly; the interpretation is a symbolic reading, not a prediction. A strong period is permission for your effort, not a guarantee of outcome. Use it to reflect — not in place of your own judgment or professional advice.</p>
-    </div>`;
+    </div>${readingBlocks}
+    <div class="reading" style="border-left-color:var(--vermilion)"><h4>Read in good faith</h4>
+      <p>These positions are computed exactly; the interpretation is a symbolic reading, not a prediction. A strong period is permission for your effort, not a guarantee of outcome.</p></div>`;
 }
 </script>
 </body>

@@ -32,6 +32,46 @@ def place_search():
     q = request.args.get('q', '')
     return jsonify(places.search_places(q))
 
+@app.route('/api/daily', methods=['POST'])
+def daily():
+    d = request.get_json()
+    try:
+        import daily as daily_mod
+        chart = engine.compute_from_place(
+            int(d['year']), int(d['month']), int(d['day']),
+            int(d['hour']), int(d['minute']),
+            float(d['lat']), float(d['lon']))
+        moon = chart['planets']['Moon']['lon']
+        asc = chart['ascendant']['lon']
+        md = chart['current_mahadasha']
+        r = daily_mod.daily_reading(moon, asc, md)
+        text = daily_mod.daily_text(r)
+        return jsonify({'stars': r['stars'], 'text': text, 'date': r['date'],
+                        'ascendant': chart['ascendant']['sign'], 'moon_sign': chart['planets']['Moon']['sign'],
+                        'mahadasha': md})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/monthly', methods=['POST'])
+def monthly():
+    d = request.get_json()
+    try:
+        import daily as daily_mod
+        chart = engine.compute_from_place(
+            int(d['year']), int(d['month']), int(d['day']),
+            int(d['hour']), int(d['minute']),
+            float(d['lat']), float(d['lon']))
+        moon = chart['planets']['Moon']['lon']
+        asc = chart['ascendant']['lon']
+        md = chart['current_mahadasha']
+        mr = daily_mod.monthly_reading(moon, asc, md)
+        text = daily_mod.monthly_text(mr, md)
+        return jsonify({'avg_stars': mr['avg_stars'], 'text': text,
+                        'best_days': mr['best_days'], 'hard_days': mr['hard_days'],
+                        'month': mr['month'], 'year': mr['year']})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
 @app.route('/api/forecast', methods=['POST'])
 def forecast():
     d = request.get_json()
