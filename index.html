@@ -209,6 +209,14 @@
   .daily-stars{font-size:34px;letter-spacing:6px;color:var(--gold);line-height:1}
   .daily-meta{font-family:'Spline Sans Mono',monospace;font-size:13px;color:var(--ink-soft);text-align:right}
   .daily-text{font-size:18px;line-height:1.7;color:var(--ink)}
+  .daily-body{margin-top:4px}
+  .daily-line{font-size:17px;line-height:1.65;color:var(--ink);margin-bottom:12px}
+  .daily-line:first-child{font-size:19px;font-weight:500}
+  .daily-line:last-child{margin-bottom:0;font-weight:500;color:var(--gold-deep,#a8742f);padding-top:6px;border-top:1px solid var(--line-soft)}
+  .chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+  .chip{background:var(--parchment-deep);border-radius:3px;padding:9px 14px;flex:1;min-width:90px;text-align:center}
+  .chip-k{display:block;font-family:'Spline Sans Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px}
+  .chip-v{font-size:13px;letter-spacing:2px;color:var(--gold)}
   .month-days{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
   .md-col{padding:16px 18px;border-radius:3px;font-size:16px;font-weight:500}
   .md-col span{display:block;font-family:'Spline Sans Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;font-weight:400}
@@ -485,8 +493,17 @@ document.getElementById('castBtn').addEventListener('click',async()=>{
 });
 
 function stars(n){return '★'.repeat(n)+'☆'.repeat(5-n);}
+function miniStars(n){return '●'.repeat(n)+'○'.repeat(5-n);}
+
+function areaChips(d){
+  const a=[['Love',d.love],['Money',d.money],['Work',d.work],['Mood',d.mood]];
+  return '<div class="chips">'+a.map(([k,v])=>
+    `<div class="chip"><span class="chip-k">${k}</span><span class="chip-v">${miniStars(v)}</span></div>`
+  ).join('')+'</div>';
+}
 
 function renderDaily(d){
+  const body=d.lines.map(l=>`<p class="daily-line">${l}</p>`).join('');
   document.getElementById('result').innerHTML=`
     <div class="chart-card">
       <div class="daily-head">
@@ -496,7 +513,8 @@ function renderDaily(d){
         </div>
         <div class="daily-meta">${d.ascendant} rising · Moon in ${d.moon_sign}</div>
       </div>
-      <p class="daily-text">${d.text}</p>
+      ${areaChips(d)}
+      <div class="daily-body">${body}</div>
     </div>
     <div class="funnel">
       <div class="funnel-q">Want to see how your whole month unfolds?</div>
@@ -522,9 +540,10 @@ async function showMonth(){
             <div class="daily-stars">${stars(d.avg_stars)}</div>
           </div>
         </div>
+        ${areaChips(d)}
         <p class="daily-text">${d.text}</p>
         <div class="month-days">
-          <div class="md-col md-good"><span>Favourable days</span>${best}</div>
+          <div class="md-col md-good"><span>Luckiest days</span>${best}</div>
           <div class="md-col md-hard"><span>Take care</span>${hard}</div>
         </div>
       </div>

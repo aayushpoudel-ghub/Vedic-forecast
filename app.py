@@ -45,10 +45,11 @@ def daily():
         asc = chart['ascendant']['lon']
         md = chart['current_mahadasha']
         r = daily_mod.daily_reading(moon, asc, md)
-        text = daily_mod.daily_text(r)
-        return jsonify({'stars': r['stars'], 'text': text, 'date': r['date'],
-                        'ascendant': chart['ascendant']['sign'], 'moon_sign': chart['planets']['Moon']['sign'],
-                        'mahadasha': md})
+        lines = daily_mod.daily_text(r)
+        return jsonify({'stars': r['stars'], 'lines': lines, 'date': r['date'],
+                        'love': r['love_stars'], 'money': r['money_stars'],
+                        'work': r['work_stars'], 'mood': r['mood_stars'],
+                        'ascendant': chart['ascendant']['sign'], 'moon_sign': chart['planets']['Moon']['sign']})
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
@@ -67,6 +68,7 @@ def monthly():
         mr = daily_mod.monthly_reading(moon, asc, md)
         text = daily_mod.monthly_text(mr, md)
         return jsonify({'avg_stars': mr['avg_stars'], 'text': text,
+                        'love': mr['love_stars'], 'money': mr['money_stars'], 'work': mr['work_stars'],
                         'best_days': mr['best_days'], 'hard_days': mr['hard_days'],
                         'month': mr['month'], 'year': mr['year']})
     except Exception as e:
