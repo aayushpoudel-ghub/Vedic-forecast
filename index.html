@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Antardasha — Your Five-Year Vedic Forecast</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap');
+
+  :root{
+    --ink:#1a1d29;
+    --ink-soft:#4a4f63;
+    --parchment:#f3ede2;
+    --parchment-deep:#e8dfcd;
+    --night:#13162a;
+    --night-2:#1c2142;
+    --gold:#b8893f;
+    --gold-bright:#d9a94e;
+    --vermilion:#c4502f;
+    --line:#cabfa6;
+    --line-soft:#ddd3bf;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--parchment);
+    color:var(--ink);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 70% -10%, rgba(217,169,78,.18), transparent 60%),
+      radial-gradient(900px 500px at 10% 110%, rgba(196,80,47,.12), transparent 55%),
+      linear-gradient(160deg, var(--night) 0%, var(--night-2) 100%);
+    color:#efe9dc;
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .stars{position:absolute;inset:0;opacity:.5}
+  .nav{
+    position:relative;z-index:3;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:28px 40px;
+    max-width:1240px;margin:0 auto;width:100%;
+  }
+  .brand{font-family:'Fraunces',serif;font-size:22px;letter-spacing:.02em;font-weight:500;color:#f3ecdd}
+  .brand span{color:var(--gold-bright)}
+  .nav-tag{font-family:'Spline Sans Mono',monospace;font-size:12px;color:#a9b0cc;letter-spacing:.08em;text-transform:uppercase}
+
+  .hero-inner{
+    position:relative;z-index:3;
+    flex:1;display:flex;flex-direction:column;justify-content:center;
+    max-width:1100px;margin:0 auto;width:100%;padding:20px 40px 80px;
+  }
+  .eyebrow{
+    font-family:'Spline Sans Mono',monospace;
+    font-size:13px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--gold-bright);margin-bottom:28px;
+  }
+  .hero h1{
+    font-family:'Fraunces',serif;
+    font-weight:400;
+    font-size:clamp(42px,7vw,86px);
+    line-height:1.02;
+    letter-spacing:-.01em;
+    margin-bottom:28px;
+    max-width:14ch;
+  }
+  .hero h1 em{font-style:italic;color:var(--gold-bright)}
+  .hero p.lede{
+    font-size:clamp(17px,2vw,21px);
+    color:#cdd2e6;max-width:54ch;margin-bottom:44px;font-weight:400;
+  }
+  .cta-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .btn{
+    font-family:'Inter',sans-serif;font-weight:500;font-size:16px;
+    padding:16px 30px;border-radius:2px;border:none;cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+    text-decoration:none;display:inline-block;
+  }
+  .btn-primary{
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    color:#241a08;box-shadow:0 6px 24px rgba(217,169,78,.3);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(217,169,78,.42)}
+  .btn-ghost{
+    background:transparent;color:#e8e2d4;border:1px solid rgba(232,226,212,.35);
+  }
+  .btn-ghost:hover{border-color:var(--gold-bright);color:var(--gold-bright)}
+
+  .hero-foot{
+    position:relative;z-index:3;
+    border-top:1px solid rgba(232,226,212,.14);
+    max-width:1100px;margin:0 auto;width:100%;padding:22px 40px;
+    display:flex;gap:40px;flex-wrap:wrap;
+    font-family:'Spline Sans Mono',monospace;font-size:12.5px;color:#9aa1bf;letter-spacing:.04em;
+  }
+  .hero-foot b{color:#d6cdb6;font-weight:500}
+
+  /* ---------- Section frame ---------- */
+  .section{max-width:1100px;margin:0 auto;padding:90px 40px}
+  .sec-head{margin-bottom:54px;max-width:60ch}
+  .sec-num{font-family:'Spline Sans Mono',monospace;font-size:13px;color:var(--gold);letter-spacing:.18em;margin-bottom:14px}
+  .sec-head h2{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(30px,4.5vw,46px);line-height:1.08;letter-spacing:-.01em;margin-bottom:18px}
+  .sec-head p{font-size:18px;color:var(--ink-soft);max-width:52ch}
+
+  /* ---------- Form ---------- */
+  .form-wrap{
+    background:linear-gradient(180deg,#fbf7ee,#f3 ede2);
+    background:#fbf7ee;
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:44px;
+    position:relative;
+    box-shadow:0 20px 60px rgba(40,30,10,.06);
+  }
+  .form-wrap::before{
+    content:"☉";position:absolute;top:-1px;right:28px;transform:translateY(-50%);
+    background:#fbf7ee;padding:0 14px;color:var(--gold);font-size:26px;
+  }
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .field{display:flex;flex-direction:column}
+  .field.full{grid-column:1/-1}
+  label{font-family:'Spline Sans Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-soft);margin-bottom:9px}
+  input, select{
+    font-family:'Inter',sans-serif;font-size:16px;color:var(--ink);
+    padding:14px 15px;border:1px solid var(--line);border-radius:2px;background:#fff;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  input:focus, select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,137,63,.13)}
+  .hint{font-size:13px;color:#8a8straling;color:#94917f;margin-top:7px;font-style:italic}
+  .place-list{
+    position:absolute;top:72px;left:0;right:0;z-index:20;
+    background:#fff;border:1px solid var(--gold);border-top:none;border-radius:0 0 3px 3px;
+    max-height:240px;overflow-y:auto;display:none;
+    box-shadow:0 12px 30px rgba(40,30,10,.14);
+  }
+  .place-list.show{display:block}
+  .place-item{padding:12px 15px;cursor:pointer;font-size:15px;border-bottom:1px solid var(--line-soft)}
+  .place-item:last-child{border-bottom:none}
+  .place-item:hover,.place-item.active{background:var(--parchment-deep)}
+  .place-item .pc{font-size:12px;color:var(--ink-soft);font-family:'Spline Sans Mono',monospace}
+  .submit-row{margin-top:32px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .btn-cast{
+    background:linear-gradient(180deg,var(--ink),#2b3047);color:#f3ecdd;
+    padding:16px 38px;font-size:16px;border-radius:2px;border:none;cursor:pointer;
+    font-family:'Inter';font-weight:500;transition:transform .15s ease,box-shadow .15s ease;
+    box-shadow:0 8px 26px rgba(26,29,41,.22);
+  }
+  .btn-cast:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(26,29,41,.3)}
+  .submit-note{font-size:13.5px;color:#94917f;max-width:34ch}
+
+  /* ---------- Pillars ---------- */
+  .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:4px;overflow:hidden;margin-top:10px}
+  .pillar{background:var(--parchment);padding:30px 26px;transition:background .2s ease}
+  .pillar:hover{background:#fbf7ee}
+  .pillar .gly{font-size:24px;color:var(--gold);margin-bottom:16px;font-family:'Fraunces',serif}
+  .pillar h3{font-family:'Fraunces',serif;font-weight:500;font-size:20px;margin-bottom:10px}
+  .pillar p{font-size:14.5px;color:var(--ink-soft)}
+
+  /* ---------- How it works ---------- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:36px}
+  .step{position:relative;padding-top:30px;border-top:2px solid var(--ink)}
+  .step .n{position:absolute;top:-15px;left:0;background:var(--parchment);padding-right:14px;font-family:'Fraunces',serif;font-size:30px;color:var(--gold)}
+  .step h3{font-family:'Fraunces',serif;font-weight:500;font-size:21px;margin-bottom:10px;margin-top:4px}
+  .step p{font-size:15px;color:var(--ink-soft)}
+
+  /* ---------- Honesty banner ---------- */
+  .honesty{
+    background:var(--night);color:#dfe3f0;border-radius:6px;
+    padding:44px;margin-top:10px;position:relative;overflow:hidden;
+  }
+  .honesty::after{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 90% 0%,rgba(217,169,78,.13),transparent 60%);pointer-events:none}
+  .honesty .sec-num{color:var(--gold-bright)}
+  .honesty h2{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(26px,3.6vw,36px);margin-bottom:18px;line-height:1.12;position:relative}
+  .honesty p{color:#c2c8dd;font-size:16.5px;max-width:62ch;margin-bottom:14px;position:relative}
+  .honesty p:last-child{margin-bottom:0}
+  .honesty b{color:var(--gold-bright);font-weight:600}
+
+  /* ---------- Result panel ---------- */
+  #result{display:none;margin-top:50px}
+  .chart-card{background:#fbf7ee;border:1px solid var(--line);border-radius:4px;padding:38px;margin-bottom:28px}
+  .chart-top{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--line-soft);padding-bottom:24px;margin-bottom:24px}
+  .chart-id h3{font-family:'Fraunces',serif;font-weight:500;font-size:26px}
+  .chart-id p{font-family:'Spline Sans Mono',monospace;font-size:13px;color:var(--ink-soft);margin-top:4px}
+  .badges{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+  .badge{font-family:'Spline Sans Mono',monospace;font-size:12px;padding:7px 12px;border-radius:2px;background:var(--parchment-deep);color:var(--ink)}
+  .badge.gold{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#241a08}
+  .grid-positions{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:3px;overflow:hidden}
+  .pos{background:#fbf7ee;padding:13px 15px}
+  .pos .pl{font-family:'Spline Sans Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:.06em}
+  .pos .dt{font-size:14px;margin-top:3px}
+  .pos .ho{font-size:12px;color:var(--ink-soft);margin-top:2px}
+  .reading{background:var(--parchment);border-left:3px solid var(--gold);padding:26px 30px;margin-bottom:18px;border-radius:0 3px 3px 0}
+  .reading h4{font-family:'Spline Sans Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);margin-bottom:14px}
+  .reading p{font-size:16px;color:var(--ink);line-height:1.75}
+  .reading p b{color:var(--ink);font-weight:600}
+  .loading{text-align:center;padding:60px;font-family:'Spline Sans Mono',monospace;color:var(--ink-soft)}
+  .spinner{width:34px;height:34px;border:3px solid var(--line-soft);border-top-color:var(--gold);border-radius:50%;margin:0 auto 20px;animation:spin .9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---------- Footer ---------- */
+  footer{background:var(--night);color:#9aa1bf;padding:50px 40px;text-align:center;font-size:14px}
+  footer .brand{justify-content:center;margin-bottom:14px;display:inline-block}
+  footer a{color:var(--gold-bright);text-decoration:none}
+
+  @media(max-width:760px){
+    .field-grid{grid-template-columns:1fr}
+    .pillars,.steps{grid-template-columns:1fr}
+    .nav{padding:20px}
+    .hero-inner,.hero-foot,.section{padding-left:22px;padding-right:22px}
+    .form-wrap,.honesty,.chart-card{padding:26px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <canvas class="stars" id="stars"></canvas>
+  <nav class="nav">
+    <div class="brand">Antar<span>dasha</span></div>
+    <div class="nav-tag">Sidereal · Lahiri Ayanāṁśa</div>
+  </nav>
+  <div class="hero-inner">
+    <div class="eyebrow">A five-year forecast, computed from the sky</div>
+    <h1>The chart you were born under, read for the years <em>ahead</em>.</h1>
+    <p class="lede">Enter a birth date, time, and place. We compute the real sidereal positions of the planets, your ascendant, and the Vimśottarī planetary periods that govern the next five years — then turn them into a clear, specific reading of career, wealth, and life.</p>
+    <div class="cta-row">
+      <a href="#cast" class="btn btn-primary">Cast a forecast</a>
+      <a href="#how" class="btn btn-ghost">How it works</a>
+    </div>
+  </div>
+  <div class="hero-foot">
+    <span><b>Swiss Ephemeris</b> — observatory-grade positions</span>
+    <span><b>Vimśottarī Daśā</b> — the 120-year period cycle</span>
+    <span><b>Navāṁśa &amp; transits</b> — depth beyond sun-signs</span>
+  </div>
+</header>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="sec-head">
+    <div class="sec-num">01 — METHOD</div>
+    <h2>Not a sun-sign horoscope. A real computation.</h2>
+    <p>Most birthday apps map you to one of twelve signs and write the same paragraph for millions of people. This works the way a traditional jyotiṣī works — from the exact positions overhead at your moment of birth.</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="n">1</div>
+      <h3>Locate the sky</h3>
+      <p>Your birth date, time, and place fix a precise moment. We resolve the place to coordinates and the historically-correct timezone, then compute sidereal longitudes for all nine grahas and your rising sign.</p>
+    </div>
+    <div class="step">
+      <div class="n">2</div>
+      <h3>Read the periods</h3>
+      <p>The Moon's nakshatra sets your Vimśottarī daśā — the sequence of planetary periods that timing in Vedic astrology rests on. We find the mahādaśā and antardaśā governing your next five years.</p>
+    </div>
+    <div class="step">
+      <div class="n">3</div>
+      <h3>Synthesize the forecast</h3>
+      <p>House lords, dignities, the daśā lord's placement, and current transits combine into a specific reading — which life areas are activated, when the openings come, and where to take care.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT YOU GET -->
+<section class="section" style="padding-top:0">
+  <div class="sec-head">
+    <div class="sec-num">02 — THE READING</div>
+    <h2>Five years, across the areas that matter.</h2>
+  </div>
+  <div class="pillars">
+    <div class="pillar"><div class="gly">☿</div><h3>Career &amp; calling</h3><p>The 10th house, its lord, and your daśā's pull on professional life — when advancement, change, or recognition is most supported.</p></div>
+    <div class="pillar"><div class="gly">♃</div><h3>Wealth &amp; gains</h3><p>The 2nd and 11th lords, Jupiter and Venus, and the rhythm of accumulation — the building years versus the windfall windows.</p></div>
+    <div class="pillar"><div class="gly">☼</div><h3>Timing map</h3><p>A year-by-year arc from the period cycle and the slow transits of Jupiter and Saturn — the openings and the cautious stretches.</p></div>
+    <div class="pillar"><div class="gly">♀</div><h3>Relationships</h3><p>The 7th house, its lord, and the Darakāraka — the nature and timing the chart points toward for partnership.</p></div>
+    <div class="pillar"><div class="gly">♄</div><h3>Health &amp; care</h3><p>Periods that ask for extra attention, read from the lagna, the Moon, and the harder transits across the cycle.</p></div>
+    <div class="pillar"><div class="gly">☋</div><h3>Remedies</h3><p>The gemstone, mantra, and practice traditionally indicated for your period's ruling planet — offered with proper caution.</p></div>
+  </div>
+</section>
+
+<!-- THE FORM -->
+<section class="section" id="cast" style="padding-top:0">
+  <div class="sec-head">
+    <div class="sec-num">03 — CAST</div>
+    <h2>Enter the birth details.</h2>
+    <p>Time matters. A difference of fifteen minutes can shift the ascendant — so use the most accurate birth time you have, and know that a rounded time makes the house-based predictions less precise.</p>
+  </div>
+
+  <div class="form-wrap">
+    <div class="field-grid">
+      <div class="field">
+        <label for="dob">Date of birth</label>
+        <input type="date" id="dob" value="1995-12-06">
+      </div>
+      <div class="field">
+        <label for="tob">Time of birth</label>
+        <input type="time" id="tob" value="22:00">
+        <span class="hint">If unknown, midday is a fallback — but accuracy drops.</span>
+      </div>
+      <div class="field">
+        <label for="country">Country of birth</label>
+        <select id="country"><option value="">Loading countries…</option></select>
+      </div>
+      <div class="field">
+        <label for="citySel">City / nearest town</label>
+        <select id="citySel" disabled><option value="">Choose a country first</option></select>
+        <span class="hint">Born in a village that isn't listed? Pick the <b>nearest town</b> — the chart is virtually identical.</span>
+      </div>
+      <div class="field full">
+        <span class="hint">Can't find a suitable place? <a href="#" id="manualToggle" style="color:var(--gold);text-decoration:underline">Enter coordinates manually</a> instead.</span>
+        <input type="hidden" id="lat"><input type="hidden" id="lon"><input type="hidden" id="place">
+      </div>
+      <div class="field full" id="manualBox" style="display:none;background:var(--parchment-deep);padding:18px;border-radius:3px">
+        <label>Manual coordinates <span style="text-transform:none;font-weight:400">— only if your place isn't in the list</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px">
+          <input type="number" id="latM" step="0.0001" placeholder="Latitude (e.g. 26.65)">
+          <input type="number" id="lonM" step="0.0001" placeholder="Longitude (e.g. 85.80)">
+        </div>
+        <span class="hint">Find yours by searching the place on Google Maps, right-clicking the spot, and copying the two numbers. North/East positive; South/West negative.</span>
+      </div>
+    </div>
+    <div class="submit-row">
+      <button class="btn-cast" id="castBtn">⊹ Compute my forecast</button>
+      <span class="submit-note">Runs the sidereal engine on the birth moment. Nothing is stored.</span>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result"></div>
+</section>
+
+<!-- HONESTY -->
+<section class="section" style="padding-top:0">
+  <div class="honesty">
+    <div class="sec-num">04 — IN GOOD FAITH</div>
+    <h2>What this can and cannot do.</h2>
+    <p>The astronomy here is exact: the planetary positions and period dates are computed to observatory standards, the same way professional jyotiṣa software does it. That part is real.</p>
+    <p>The <b>interpretation</b> is a different thing. Astrology is a symbolic, interpretive tradition — not a validated predictive science. A favorable period is best understood as <b>permission, not delivery</b>: it describes conditions under which your own effort tends to pay off, never a guarantee that it will. The chart is a mirror that can sharpen what you already sense — it is not a substitute for your judgment, and never for medical, legal, or financial advice.</p>
+    <p>Read it the way you'd read a thoughtful letter from someone who knows the tradition: take what rings true, and author the rest yourself.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="brand">Antar<span style="color:var(--gold-bright)">dasha</span></div>
+  <p>Sidereal computation via Swiss Ephemeris · Lahiri ayanāṁśa · For reflection, not prediction.</p>
+</footer>
+
+<script>
+// ---------- starfield ----------
+(function(){
+  const c=document.getElementById('stars'),x=c.getContext('2d');
+  function size(){c.width=c.offsetWidth;c.height=c.offsetHeight}
+  size();window.addEventListener('resize',size);
+  const stars=Array.from({length:120},()=>({x:Math.random(),y:Math.random(),r:Math.random()*1.4+.2,t:Math.random()*6.28,s:Math.random()*.6+.2}));
+  function draw(){
+    x.clearRect(0,0,c.width,c.height);
+    const tm=Date.now()/1000;
+    stars.forEach(s=>{
+      const a=.35+.45*Math.sin(tm*s.s+s.t);
+      x.beginPath();x.arc(s.x*c.width,s.y*c.height,s.r,0,6.28);
+      x.fillStyle='rgba(232,222,200,'+a+')';x.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ---------- forecast (calls backend engine) ----------
+const SIGNS=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+
+// ---------- country -> city pickers ----------
+const countrySel=document.getElementById('country');
+const citySel=document.getElementById('citySel');
+const latEl=document.getElementById('lat');
+const lonEl=document.getElementById('lon');
+const placeEl=document.getElementById('place');
+
+// load country list on page load
+(async function loadCountries(){
+  try{
+    const r=await fetch('/api/countries');
+    const list=await r.json();
+    countrySel.innerHTML='<option value="">Select a country…</option>'+
+      list.map(c=>`<option value="${c.cc}">${c.name}</option>`).join('');
+    // default to Nepal if present
+    if(list.some(c=>c.cc==='NP')){countrySel.value='NP';countrySel.dispatchEvent(new Event('change'));}
+  }catch(e){
+    countrySel.innerHTML='<option value="">Country list needs the engine running</option>';
+  }
+})();
+
+// when country chosen, load its cities
+countrySel.addEventListener('change',async()=>{
+  const cc=countrySel.value;
+  latEl.value='';lonEl.value='';
+  if(!cc){citySel.innerHTML='<option value="">Choose a country first</option>';citySel.disabled=true;return;}
+  citySel.disabled=true;citySel.innerHTML='<option value="">Loading cities…</option>';
+  try{
+    const r=await fetch('/api/cities?cc='+encodeURIComponent(cc));
+    const cs=await r.json();
+    if(!cs.length){citySel.innerHTML='<option value="">No cities listed — use manual coordinates</option>';return;}
+    citySel.innerHTML='<option value="">Select your city / nearest town…</option>'+
+      cs.map((c,i)=>`<option value="${i}" data-lat="${c.lat}" data-lon="${c.lon}" data-label="${c.label}">${c.label}</option>`).join('');
+    citySel.disabled=false;
+    // stash for lookup
+    citySel._cities=cs;
+  }catch(e){
+    citySel.innerHTML='<option value="">Could not load cities</option>';
+  }
+});
+
+// when city chosen, set coordinates
+citySel.addEventListener('change',()=>{
+  const cs=citySel._cities||[];
+  const idx=parseInt(citySel.value);
+  if(isNaN(idx)||!cs[idx]){latEl.value='';lonEl.value='';return;}
+  latEl.value=cs[idx].lat;lonEl.value=cs[idx].lon;
+  const cname=countrySel.options[countrySel.selectedIndex].text;
+  placeEl.value=cs[idx].label+', '+cname;
+});
+
+// ---------- manual coordinate fallback ----------
+let manualMode=false;
+document.getElementById('manualToggle').addEventListener('click',(e)=>{
+  e.preventDefault();
+  manualMode=!manualMode;
+  document.getElementById('manualBox').style.display=manualMode?'block':'none';
+});
+
+document.getElementById('castBtn').addEventListener('click',async()=>{
+  const dob=document.getElementById('dob').value;
+  const tob=document.getElementById('tob').value;
+  let lat=parseFloat(latEl.value);
+  let lon=parseFloat(lonEl.value);
+  let place=placeEl.value;
+
+  // manual coordinates override
+  const latM=parseFloat(document.getElementById('latM').value);
+  const lonM=parseFloat(document.getElementById('lonM').value);
+  if(!isNaN(latM)&&!isNaN(lonM)){lat=latM;lon=lonM;if(!place)place='Manual location';}
+
+  if(!dob||!tob){alert('Please enter both date and time of birth.');return;}
+  if(isNaN(lat)||isNaN(lon)){alert('Choose your country and city from the dropdowns, or open "enter coordinates manually".');return;}
+
+  const res=document.getElementById('result');
+  res.style.display='block';
+  res.innerHTML='<div class="loading"><div class="spinner"></div>Locating the sky at your birth moment…</div>';
+  res.scrollIntoView({behavior:'smooth',block:'start'});
+
+  const [Y,M,D]=dob.split('-').map(Number);
+  const [h,mi]=tob.split(':').map(Number);
+
+  try{
+    const r=await fetch('/api/forecast',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({year:Y,month:M,day:D,hour:h,minute:mi,lat,lon,place})
+    });
+    if(!r.ok) throw new Error('engine');
+    const data=await r.json();
+    renderResult(data,place);
+  }catch(e){
+    res.innerHTML='<div class="chart-card"><div class="reading"><h4>Engine offline</h4>'+
+      '<p>This page is the interface. To compute live charts it needs its Python engine running '+
+      '(<span style="font-family:monospace">app.py</span>, included with the project). '+
+      'Start that server and the form will return a full sidereal forecast here.</p></div></div>';
+  }
+});
+
+function renderResult(d,place){
+  const c=d.chart, s=d.sections;
+  const p=c.planets;
+  const positions=Object.entries(p).map(([nm,v])=>
+    `<div class="pos"><div class="pl">${nm}</div><div class="dt">${v.sign} ${v.deg}°${v.dignity?' · '+v.dignity:''}</div><div class="ho">House ${v.house} · ${v.nakshatra}${v.retrograde?' ℞':''}</div></div>`
+  ).join('');
+
+  const readingBlocks=[
+    ['Your foundation',s.foundation],
+    ['The period you are in',s.period],
+    ['Career & calling',s.career],
+    ['Wealth & finances',s.wealth],
+    ['Your five-year timeline',s.timeline],
+    ['Relationships',s.relationships],
+    ['Health & wellbeing',s.health],
+    ['Remedies',s.remedies]
+  ].map(([t,txt])=>`<div class="reading"><h4>${t}</h4><p>${txt}</p></div>`).join('');
+
+  document.getElementById('result').innerHTML=`
+    <div class="chart-card">
+      <div class="chart-top">
+        <div class="chart-id">
+          <h3>${c.ascendant.sign} Ascendant</h3>
+          <p>${place} · Asc ${c.ascendant.deg}° ${c.ascendant.nakshatra}${c.timezone?' · '+c.timezone:''}</p>
+        </div>
+        <div class="badges">
+          <div class="badge gold">${c.current_mahadasha} mahādaśā</div>
+          <div class="badge">${c.current_antardasha} antardaśā</div>
+          <div class="badge">until ${c.md_end}</div>
+        </div>
+      </div>
+      <div class="grid-positions">${positions}</div>
+    </div>
+    ${readingBlocks}
+    <div class="reading" style="border-left-color:var(--vermilion)">
+      <h4>Read in good faith</h4>
+      <p>These positions are computed exactly; the interpretation is a symbolic reading, not a prediction. A strong period is permission for your effort, not a guarantee of outcome. Use it to reflect — not in place of your own judgment or professional advice.</p>
+    </div>`;
+}
+</script>
+</body>
+</html>
