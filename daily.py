@@ -120,32 +120,32 @@ OPENER={
 
 # Love line by love_stars
 LOVE={
- 5:"Your love life is glowing today — if you're with someone, expect warmth and closeness; if you're single, sparks are genuinely possible.",
- 4:"Romance is favoured today — a good time to connect, reach out, or plan something with someone you care about.",
- 3:"Your love life is calm today — nothing dramatic, just steady. A quiet evening together works well.",
- 2:"Tread softly in matters of the heart today — small misunderstandings can flare up, so listen more than you speak.",
- 1:"Your relationships need care today — avoid arguments and don't make emotional decisions you might regret.",
+ 5:"Your love life is glowing today. If you're with someone, expect real warmth, closeness, and maybe a moment that reminds you why you're together. If you're single, the energy is magnetic — don't be surprised if someone takes notice, and don't be shy about putting yourself out there.",
+ 4:"Romance is favoured today. It's a good time to reach out to someone you care about, plan something together, or simply enjoy the people who matter to you. A small gesture of affection goes a long way right now.",
+ 3:"Your love life is calm and steady today — no drama, no fireworks, just easy companionship. It's a fine day to simply be present with the people you love, without needing anything more from the moment.",
+ 2:"Tread gently in matters of the heart today. Small misunderstandings can spark more easily than usual, so listen more than you speak, and don't read too much into a passing mood — yours or theirs.",
+ 1:"Your relationships need patience today. Tempers may run short and feelings bruise easily, so avoid arguments, hold off on serious conversations, and don't make any emotional decisions you might look back on with regret.",
 }
 MONEY={
- 5:"Money matters look bright — keep an eye out, because an opportunity or a small windfall could come your way.",
- 4:"A good day for finances — favourable for earning, planning, or a smart purchase you've been considering.",
- 3:"Your finances are steady today — no need to worry, but no need to splurge either.",
- 2:"Watch your spending today — this isn't the day for big purchases or risky money moves.",
- 1:"Be careful with money today — avoid loans, gambling, and any deal that feels too good to be true.",
+ 5:"Money matters look bright today. Keep your eyes open — an opportunity, a useful conversation, or even a small unexpected gain could come your way. If you've been waiting for a good moment to act on something financial, this is one.",
+ 4:"A good day for your finances. It's favourable for earning, planning, or making a sensible purchase you've thought through. Your judgement around money is sound today, so trust it.",
+ 3:"Your finances are steady today — nothing to worry about, nothing that demands action. A quiet day to simply keep things ticking along and avoid unnecessary spending.",
+ 2:"Keep a watchful eye on money today. It's not the day for big purchases, risky bets, or financial decisions made in a hurry. If something can wait, let it wait.",
+ 1:"Be careful with money today. Steer well clear of loans, gambling, and any deal that sounds too good to be true. Protect what you have rather than reaching for more.",
 }
 WORK={
- 5:"Work flows beautifully today — a great day to push a project, ask for what you want, or show what you can do.",
- 4:"A productive day at work is likely — good for getting things done and being noticed for it.",
- 3:"Work ticks along normally today — handle your tasks and you'll end the day satisfied.",
- 2:"Work may feel like an uphill climb today — focus on finishing what's in front of you, not starting something new.",
- 1:"Work could be frustrating today — expect delays, stay patient with colleagues, and don't take on too much.",
+ 5:"Work flows beautifully today. It's a strong day to push a project forward, ask for something you want, or simply show what you're capable of — people are more likely to notice and respond well. Make your move.",
+ 4:"A productive day at work is on the cards. You'll get things done, and your efforts are likely to be seen and appreciated. A good day to take initiative on something that matters to you.",
+ 3:"Work ticks along normally today. Handle what's in front of you, keep steady, and you'll end the day with a quiet sense of having done enough. No need to force anything.",
+ 2:"Work may feel like an uphill climb today. Focus on finishing what's already on your plate rather than starting something new, and be patient with colleagues who aren't quite on your wavelength.",
+ 1:"Work could test your patience today. Expect a few delays or obstacles, keep your cool when things don't go to plan, and resist taking on more than you can realistically manage.",
 }
 MOOD={
- 5:"Your energy and mood are high — you'll feel light, confident, and ready for anything.",
- 4:"You're in good spirits today — a positive, upbeat frame of mind carries you forward.",
- 3:"Your mood is even today — neither buzzing nor down, just yourself.",
- 2:"You may feel a little low or restless today — be kind to yourself and don't overthink things.",
- 1:"Your energy dips today — rest where you can, and don't be hard on yourself if you feel off.",
+ 5:"Your energy and spirits are high today. You'll feel light, capable, and ready to take on whatever comes — exactly the kind of day to make the most of how good you feel.",
+ 4:"You're in good spirits today. A positive, steady frame of mind carries you through, and you'll find it easier than usual to stay upbeat even if small things go sideways.",
+ 3:"Your mood is even and settled today — neither soaring nor sinking, just steadily yourself. A grounded day to simply get on with things.",
+ 2:"You may feel a little low or restless today. Be gentle with yourself, don't overthink things, and give yourself permission to rest if you need it. It's a passing cloud, not the weather.",
+ 1:"Your energy dips today, and you may feel more sensitive or worn than usual. Rest where you can, go easy on yourself, and don't take on anything that drains you further. Tomorrow will feel lighter.",
 }
 # A closing nudge by overall
 CLOSER={
@@ -160,19 +160,24 @@ def _pick(lst, seed):
     return lst[seed % len(lst)]
 
 def daily_text(r):
-    """4-6 lines, plain language, spicy, area-specific. No jargon."""
-    seed = int(r['date'].replace('-','')) # stable per-day choice
+    """6-7 lines, plain language, spicy, area-specific, detailed. No jargon."""
+    seed = int(r['date'].replace('-',''))
     lines=[]
     lines.append(_pick(OPENER[r['stars']], seed))
-    # lead with the strongest or weakest area to feel personal
-    areas=[('love',r['love_stars']),('money',r['money_stars']),('work',r['work_stars']),('mood',r['mood_stars'])]
-    # always include love, money, work (the 3 people care about), plus mood
+    # personalized highlight: name the standout (best or worst) area of the day
+    areas={'love':r['love_stars'],'money':r['money_stars'],'work':r['work_stars'],'mood':r['mood_stars']}
+    best_area=max(areas,key=areas.get); worst_area=min(areas,key=areas.get)
+    label={'love':'your love life','money':'your finances','work':'your work','mood':'your energy'}
+    if areas[best_area]>=4 and areas[best_area]-areas[worst_area]>=2:
+        lines.append(f"The standout today is <b>{label[best_area]}</b> — that's where the day really opens up for you, so put your attention there.")
+    elif areas[worst_area]<=2 and areas[best_area]-areas[worst_area]>=2:
+        lines.append(f"The one thing to keep an eye on today is <b>{label[worst_area]}</b> — give that part of life a little extra care and the rest of the day flows fine.")
     lines.append(LOVE[r['love_stars']])
     lines.append(MONEY[r['money_stars']])
     lines.append(WORK[r['work_stars']])
     lines.append(MOOD[r['mood_stars']])
     lines.append(CLOSER[r['stars']])
-    return lines  # return as list so frontend can show line breaks
+    return lines
 
 # ============ MONTHLY ============
 def monthly_reading(natal_moon_lon, natal_asc_lon, md_lord, year=None, month=None):
@@ -195,25 +200,25 @@ def monthly_reading(natal_moon_lon, natal_asc_lon, md_lord, year=None, month=Non
 
 # Monthly headline themes by area strength
 MONTH_LOVE={
- 5:"This is a beautiful month for love. If you're in a relationship, it deepens; if you're single, someone significant could appear — stay open.",
- 4:"Romance is on the rise this month — a warm, promising time for your relationships and matters of the heart.",
- 3:"Your love life stays steady and comfortable this month — no storms, just quiet companionship.",
- 2:"Love asks for patience this month — there may be a few bumps, so communicate clearly and avoid jumping to conclusions.",
- 1:"Caution in love this month — relationships may hit a rough patch, so be gentle, avoid ultimatums, and give each other space.",
+ 5:"This is a beautiful month for love. If you're in a relationship, it deepens and feels more secure; if you're single, someone genuinely significant could come into your life, so stay open and say yes to invitations.",
+ 4:"Romance is on the rise this month — a warm, promising time for your relationships. Existing bonds grow closer, and there's real potential for new connection if you're looking.",
+ 3:"Your love life stays steady and comfortable this month. No storms, no surprises — just quiet companionship and the easy presence of the people who matter to you.",
+ 2:"Love asks for patience this month. There may be a few bumps or misunderstandings, so keep communication clear and honest, and try not to jump to conclusions when things feel uncertain.",
+ 1:"Be gentle in love this month, as relationships may hit a rough patch. Avoid ultimatums and big confrontations, give each other room to breathe, and trust that the strain will ease with time.",
 }
 MONTH_MONEY={
- 5:"Money flows well this month — a strong period for income, and a real chance for a gain or opportunity you shouldn't ignore.",
- 4:"Finances look healthy this month — a good time to earn, save, and make a sensible investment.",
- 3:"Your finances hold steady this month — manageable and calm, with no major surprises either way.",
- 2:"Keep a close eye on money this month — avoid big spending and don't lend what you can't spare.",
- 1:"Be financially careful this month — steer clear of risky deals and big purchases; protect what you have.",
+ 5:"Money flows well this month. It's a strong period for income, and there's a real chance of a gain, a raise, or an opportunity you shouldn't let slip — keep your eyes open and act when the moment comes.",
+ 4:"Finances look healthy this month — a good time to earn, save, and make a sensible investment. Your money sense is sound, so it's a fine stretch to plan ahead.",
+ 3:"Your finances hold steady this month. Things stay manageable and calm, with no major swings either way — a good time to simply maintain and avoid unnecessary risk.",
+ 2:"Keep a close eye on money this month. Avoid big spending and don't lend what you can't comfortably spare; it's a stretch for caution rather than bold financial moves.",
+ 1:"Be financially careful this month. Steer clear of risky deals, loans, and large purchases, and focus on protecting what you have. This isn't the time to gamble on anything.",
 }
 MONTH_WORK={
- 5:"Your career takes off this month — a powerful time for recognition, progress, or a step up. Put yourself forward boldly.",
- 4:"Work goes well this month — productive and rewarding, with good chances to shine and be noticed.",
- 3:"Work stays on an even keel this month — steady progress through consistent effort.",
- 2:"Work may feel demanding this month — push through patiently, and don't take on more than you can handle.",
- 1:"A challenging month at work — expect delays and pressure, so focus on finishing rather than starting, and keep calm under stress.",
+ 5:"Your career takes off this month — a powerful time for recognition, progress, or a real step up. Put yourself forward boldly, because your efforts are far more likely than usual to be seen and rewarded.",
+ 4:"Work goes well this month. It's productive and rewarding, with good chances to shine and be noticed by the people who matter. A strong month to take initiative.",
+ 3:"Work stays on an even keel this month — steady, reliable progress through consistent effort. Nothing dramatic, but you'll end the month having moved things meaningfully forward.",
+ 2:"Work may feel demanding this month. Push through patiently, focus on what you can control, and don't take on more than you can handle — it's a month for steady effort, not heroics.",
+ 1:"A challenging month at work, with delays and pressure more likely than usual. Focus on finishing rather than starting, keep calm under stress, and remember that this heavier stretch is temporary.",
 }
 
 def monthly_text(mr, md_lord):

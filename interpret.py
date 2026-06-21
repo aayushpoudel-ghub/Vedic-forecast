@@ -95,10 +95,29 @@ def interpret(chart):
         convergence=_syn.full_synthesis(chart, pstrength) if pstrength else None
     except Exception:
         convergence=None
+    # apply the master-exceptions library to refine the verdicts
+    chart_exceptions=[]
+    try:
+        import exceptions as _exc
+        if convergence and pstrength:
+            chart_exceptions=_exc.check_exceptions(chart, pstrength)
+            convergence=_exc.apply_exceptions(convergence, chart_exceptions)
+    except Exception:
+        pass
+    # derive life-stage context from birth date if available
+    life_ctx=None
+    try:
+        import context as _ctx
+        life_ctx=_ctx.derive_context(chart)
+    except Exception:
+        pass
 
     # ---------- FOUNDATION ----------
     moon=P['Moon']; asc=chart['ascendant']
-    found=(f"You are born with <b>{asc['sign']} rising</b> ({asc['deg']}°, {asc['nakshatra']} nakshatra) — "
+    found=""
+    if life_ctx and life_ctx.get('frame'):
+        found=life_ctx['frame']+"<br><br>"
+    found+=(f"You are born with <b>{asc['sign']} rising</b> ({asc['deg']}°, {asc['nakshatra']} nakshatra) — "
         f"this is the lens through which your whole life is coloured, governing {HOUSE_THEME[1]}. "
         f"Your Moon, which in Vedic astrology carries the mind and emotional nature, sits in <b>{moon['sign']}</b> "
         f"in the {_ord(moon['house'])} house ({moon['nakshatra']}){_dignity_phrase(moon)}. "
@@ -170,6 +189,12 @@ def interpret(chart):
             verdicts.append(f"<b>{label}: {a['verdict']}</b> ({a['supports']} factors support it, {a['challenges']} challenge it)")
         syn_text+="<br><br>Weighing all the indicators together, here is how the major areas of life stand in your chart: "+"; ".join(verdicts)+". "
         syn_text+="Where an area shows as 'mixed', it means your chart holds genuine tension there — real strengths pulling against real challenges — and the outcome depends more on your own choices than on destiny alone."
+        # surface the master-level exceptions as 'hidden insights'
+        if chart_exceptions:
+            positive_exc=[e for e in chart_exceptions if e['adjust']>0]
+            if positive_exc:
+                syn_text+="<br><br><b>Hidden strengths in your chart</b> — subtle but important factors that a surface reading would miss: "
+                syn_text+=" ".join(e['note'] for e in positive_exc[:3])
         s['synthesis']=syn_text
 
     # ---------- CAREER (deep) ----------

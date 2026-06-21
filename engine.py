@@ -130,6 +130,7 @@ def compute_from_place(year, month, day, hour, minute, lat, lon):
     chart = compute_chart(year, month, day, hour, minute, lat, lon, tz_offset)
     chart['timezone'] = tzname
     chart['tz_offset'] = tz_offset
+    chart['birth_year']=year; chart['birth_month']=month; chart['birth_day']=day
     return chart
 
 if __name__ == '__main__':

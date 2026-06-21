@@ -1,63 +1,74 @@
-"""User context layer — the information a master gathers by ASKING.
-Focuses the reading on what the person actually wants, and filters out
-predictions that don't apply to their life stage. Optional; defaults gracefully."""
+"""User context — auto-derived from the birth date we already have.
+Age-based life-stage tailoring (no need to ask), per the natural priorities
+of each stage. Focuses the reading on what people at that stage actually care about."""
 
-def focus_reading(sections, ctx):
-    """Reorder/annotate sections based on the person's stated focus & life facts.
-    ctx keys (all optional): age, focus (list), married (bool), working (bool/str)."""
-    if not ctx:
-        return sections, None
+from datetime import datetime
 
-    focus = ctx.get('focus', [])
-    age = ctx.get('age')
-    married = ctx.get('married')
-    working = ctx.get('working')
+def derive_context(chart):
+    """From birth date alone, infer life-stage and the areas that naturally matter."""
+    try:
+        y,m,d = chart.get('_birth',(None,None,None))
+    except Exception:
+        y=None
+    # birth year/month/day are passed in chart['_birth']; fall back gracefully
+    by = chart.get('birth_year'); bm = chart.get('birth_month',1); bd = chart.get('birth_day',1)
+    if not by:
+        return None
+    today = datetime.now()
+    age = today.year - by - ((today.month, today.day) < (bm, bd))
 
-    intro_bits=[]
+    ctx = {'age': age}
 
-    # life-stage framing
-    if age:
-        if age < 25:
-            intro_bits.append("As someone early in life's journey, the emphasis falls naturally on education, finding direction, and laying foundations")
-        elif age < 40:
-            intro_bits.append("At this building stage of life, career growth, relationships, and establishing yourself are the live themes")
-        elif age < 60:
-            intro_bits.append("At this established stage, consolidation, leadership, wealth, and family take centre stage")
-        else:
-            intro_bits.append("At this mature stage, the focus turns to legacy, wellbeing, wisdom, and what endures")
+    if age < 18:
+        ctx['stage']='youth'
+        ctx['focus']=['education','growth']
+        ctx['frame']=("You're still early in life's journey, so the emphasis falls naturally on learning, "
+            "finding your strengths, friendships, and discovering the direction that's right for you. "
+            "The choices you make now about study and interests quietly shape the road ahead.")
+        ctx['skip']=['marriage']
+    elif age < 25:
+        ctx['stage']='early-adult'
+        ctx['focus']=['career','education','love']
+        ctx['frame']=("You're at the threshold of adult life — stepping from study into the working world, "
+            "figuring out your path, and beginning to think about independence, relationships, and what you want to build. "
+            "It's a formative, fast-moving stage where the foundations are being laid.")
+        ctx['skip']=[]
+    elif age < 40:
+        ctx['stage']='building'
+        ctx['focus']=['career','wealth','love','marriage']
+        ctx['frame']=("You're in the most dynamic stretch of life, where the big questions are live: how your career "
+            "and finances will grow, the challenges and changes ahead at work, the major decisions that shape your path, "
+            "and your love life and the question of partnership. This is the stage where the direction of your life takes shape.")
+        ctx['skip']=[]
+    elif age < 55:
+        ctx['stage']='established'
+        ctx['focus']=['career','wealth','health']
+        ctx['frame']=("You're at an established stage of life, where the focus turns to consolidating what you've built — "
+            "your career standing and finances, your family, your health, and the longer view of security and legacy. "
+            "Stability and wise stewardship matter more now than chasing the new.")
+        ctx['skip']=[]
+    else:
+        ctx['stage']='mature'
+        ctx['focus']=['health','wealth','family']
+        ctx['frame']=("You're at a mature and reflective stage of life, where wellbeing, family, peace of mind, "
+            "and the legacy you leave take centre stage. It's a time to enjoy what you've built, tend to your health, "
+            "and focus on what truly matters to you.")
+        ctx['skip']=['marriage']
 
-    # marriage filter — don't predict marriage timing for the already-married
-    note=None
-    if married is True:
-        note='married'
-    elif married is False and age and age>25:
-        intro_bits.append("with partnership a relevant and active theme")
+    return ctx
 
-    # working/studying
-    if working == 'studying':
-        intro_bits.append("Your studies and the path from them into work are a natural priority right now")
-    elif working == 'working':
-        intro_bits.append("Your career and its next steps are a natural priority right now")
-
-    intro = '. '.join(intro_bits)+'.' if intro_bits else None
-
-    # build a focused ordering: put requested areas first
-    AREA_TO_SECTION={'career':'career','wealth':'wealth','love':'relationships',
-                     'marriage':'relationships','health':'health','spiritual':'deeper',
-                     'education':'career'}
-    return sections, {'intro':intro, 'note':note, 'priority':[AREA_TO_SECTION.get(f) for f in focus if f in AREA_TO_SECTION]}
-
-def adjust_marriage_section(text, married):
-    """If already married, reframe the relationship section away from 'will you marry'."""
-    if married is True:
-        return ("In your marriage and partnership, "+text.split('. ',1)[-1] if '. ' in text else text).replace(
-            'Partnership is read','Your existing partnership is read')
-    return text
+def stage_intro(ctx):
+    """A plain-language opening line tailored to life stage."""
+    if not ctx: return None
+    return ctx.get('frame')
 
 if __name__=='__main__':
-    # demo
-    ctx={'age':23,'focus':['career','wealth'],'married':False,'working':'studying'}
-    _,meta=focus_reading({'career':'x','wealth':'y','relationships':'z'},ctx)
-    print("Context intro:", meta['intro'])
-    print("Priority sections:", meta['priority'])
-    print("Marriage note:", meta['note'])
+    import engine
+    c=engine.compute_chart(1995,12,6,22,0,26.6483,85.80,5.75)
+    c['birth_year']=1995; c['birth_month']=12; c['birth_day']=6
+    ctx=derive_context(c)
+    print(f"Age: {ctx['age']} | Stage: {ctx['stage']}")
+    print(f"Focus areas: {ctx['focus']}")
+    print(f"Skip: {ctx['skip']}")
+    print(f"\nFrame: {ctx['frame']}")
+

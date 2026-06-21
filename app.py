@@ -74,6 +74,25 @@ def monthly():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
+@app.route('/api/overview', methods=['POST'])
+def overview():
+    d = request.get_json()
+    try:
+        import overview as ov, strength as st_mod, synthesis as syn_mod, exceptions as exc_mod, context as ctx_mod
+        chart = engine.compute_from_place(
+            int(d['year']), int(d['month']), int(d['day']),
+            int(d['hour']), int(d['minute']),
+            float(d['lat']), float(d['lon']))
+        st = st_mod.planet_strength(chart)
+        syn = syn_mod.full_synthesis(chart, st)
+        excs = exc_mod.check_exceptions(chart, st)
+        syn = exc_mod.apply_exceptions(syn, excs)
+        life_ctx = ctx_mod.derive_context(chart)
+        text = ov.current_chapter(chart, st, syn, life_ctx)
+        return jsonify({'text': text})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
 @app.route('/api/forecast', methods=['POST'])
 def forecast():
     d = request.get_json()

@@ -573,15 +573,26 @@ async function showMonth(){
 
 async function showForecast(){
   const btn=document.getElementById('fiveBtn');
-  // record the interest (Google Analytics event, if present)
   if(window.gtag){gtag('event','five_year_interest',{event_category:'engagement',event_label:'coming_soon_click'});}
+  btn.textContent='Reading your current chapter…';btn.disabled=true;
+  let overviewText='';
+  try{
+    const r=await fetch('/api/overview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(birth)});
+    const d=await r.json();
+    overviewText=d.text||'';
+  }catch(e){/* fall through to teaser without overview */}
+
   const block=document.createElement('div');
   block.innerHTML=`
+    ${overviewText?`<div class="chart-card" style="margin-top:18px">
+      <div class="daily-label">Your current chapter</div>
+      <p class="daily-text" style="margin-top:14px">${overviewText}</p>
+    </div>`:''}
     <div class="chart-card coming-soon">
       <div class="cs-badge">Coming soon</div>
       <h3 class="cs-title">Your full five-year forecast is on its way.</h3>
-      <p class="cs-text">A deep, personal reading of where the next five years are taking your career, wealth, relationships, and life — month by month, turning point by turning point. We're putting the finishing touches on it.</p>
-      <p class="cs-text" style="font-weight:500;color:#f3ecdd">You're clearly someone who wants the bigger picture — and we'd love to give it to you. This feature is launching shortly. Keep checking your daily reading; you'll be among the first to know when it's ready.</p>
+      <p class="cs-text">The overview above is just a glimpse. The full forecast maps your career, wealth, relationships, and health across the next five years — month by month, turning point by turning point, so you know exactly when each opening arrives.</p>
+      <p class="cs-text" style="font-weight:500;color:#f3ecdd">You're clearly someone who wants the bigger picture — and it's almost ready. Keep checking your daily reading; you'll be among the first to know when the full forecast launches.</p>
       <div class="cs-spark">✦</div>
     </div>`;
   btn.closest('.funnel').replaceWith(block);
