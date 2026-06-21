@@ -85,6 +85,16 @@ def interpret(chart):
         praty=_tim.current_pratyantardasha(chart)
     except Exception:
         praty=None
+    try:
+        import strength as _str
+        pstrength=_str.planet_strength(chart)
+    except Exception:
+        pstrength={}
+    try:
+        import synthesis as _syn
+        convergence=_syn.full_synthesis(chart, pstrength) if pstrength else None
+    except Exception:
+        convergence=None
 
     # ---------- FOUNDATION ----------
     moon=P['Moon']; asc=chart['ascendant']
@@ -140,6 +150,27 @@ def interpret(chart):
         dtext="Beyond the birth chart, Vedic astrology uses <b>divisional charts</b> — finer lenses that zoom into specific areas of life. "
         dtext+=" ".join(n['text'] for n in divs['notes'])
         s['deeper']=dtext
+
+    # ---------- MASTER SYNTHESIS (convergence + strength) ----------
+    if convergence and pstrength:
+        # strongest & weakest planets frame the whole reading
+        ranked=sorted(pstrength.items(), key=lambda x:-x[1]['score'])
+        strongest=ranked[0]; weakest=ranked[-1]
+        syn_text=(f"Reading your chart as a whole — weighing which planets are powerful and which are weak, "
+            f"and counting how many independent indicators point the same way — a clearer picture emerges than any single placement gives. "
+            f"<br><br>Your <b>strongest planet is {strongest[0]}</b> ({strongest[1]['verdict']}), which means the matters it governs "
+            f"tend to carry through with real force in your life. Your <b>weakest is {weakest[0]}</b> ({weakest[1]['verdict']}), "
+            f"the area that most needs conscious support and care. ")
+        # area verdicts, ordered strongest-first
+        area_order=sorted(convergence.items(), key=lambda x:-x[1]['score'])
+        verdicts=[]
+        for area,a in area_order:
+            label={'career':'Career','wealth':'Wealth','marriage':'Marriage & partnership',
+                   'health':'Health','education':'Learning'}[area]
+            verdicts.append(f"<b>{label}: {a['verdict']}</b> ({a['supports']} factors support it, {a['challenges']} challenge it)")
+        syn_text+="<br><br>Weighing all the indicators together, here is how the major areas of life stand in your chart: "+"; ".join(verdicts)+". "
+        syn_text+="Where an area shows as 'mixed', it means your chart holds genuine tension there — real strengths pulling against real challenges — and the outcome depends more on your own choices than on destiny alone."
+        s['synthesis']=syn_text
 
     # ---------- CAREER (deep) ----------
     tenth_lord=lords[10]; tl=P[tenth_lord]
