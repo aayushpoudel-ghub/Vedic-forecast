@@ -69,6 +69,23 @@ def interpret(chart):
     md=chart['current_mahadasha']; ad=chart['current_antardasha']
     s={}
 
+    # compute depth layers
+    try:
+        import yogas as _yogas
+        chart_yogas=_yogas.detect_yogas(chart)
+    except Exception:
+        chart_yogas=[]
+    try:
+        import divisional as _div
+        divs=_div.compute_divisionals(chart)
+    except Exception:
+        divs=None
+    try:
+        import timing as _tim
+        praty=_tim.current_pratyantardasha(chart)
+    except Exception:
+        praty=None
+
     # ---------- FOUNDATION ----------
     moon=P['Moon']; asc=chart['ascendant']
     found=(f"You are born with <b>{asc['sign']} rising</b> ({asc['deg']}°, {asc['nakshatra']} nakshatra) — "
@@ -97,7 +114,32 @@ def interpret(chart):
         if ad_p:
             period+=(f"The {ad} sub-period layered on top of it for now adds a flavour of {DASHA_SHORT[ad]}, "
                 f"colouring the present months through its placement in your {_ord(ad_p['house'])} house.")
+    if praty and praty.get('pd'):
+        period+=(f"<br><br>Drilling down to the finest level, you are right now in the "
+            f"<b>{praty['md']}–{praty['ad']}–{praty['pd']}</b> sub-sub-period "
+            f"({praty['pd_start']} to {praty['pd_end']}), which sets the precise tone of these particular weeks.")
     s['period']=period
+
+    # ---------- YOGAS (the headline combinations) ----------
+    if chart_yogas:
+        strong=[y for y in chart_yogas if y.get('strength')=='strong']
+        ytext="Your chart carries several <b>yogas</b> — special planetary combinations that the tradition reads as defining features of a life. "
+        if strong:
+            ytext+="The most powerful in your chart: "
+            ytext+=" ".join(f"<b>{y['name']}.</b> {y['meaning']}" for y in strong)
+            others=[y for y in chart_yogas if y.get('strength')!='strong']
+            if others:
+                ytext+="<br><br>Other notable combinations: "
+                ytext+=" ".join(f"<b>{y['name']}.</b> {y['meaning']}" for y in others)
+        else:
+            ytext+=" ".join(f"<b>{y['name']}.</b> {y['meaning']}" for y in chart_yogas)
+        s['yogas']=ytext
+
+    # ---------- DEEPER CHART (divisionals) ----------
+    if divs and divs.get('notes'):
+        dtext="Beyond the birth chart, Vedic astrology uses <b>divisional charts</b> — finer lenses that zoom into specific areas of life. "
+        dtext+=" ".join(n['text'] for n in divs['notes'])
+        s['deeper']=dtext
 
     # ---------- CAREER (deep) ----------
     tenth_lord=lords[10]; tl=P[tenth_lord]
@@ -126,7 +168,11 @@ def interpret(chart):
                 f"{HOUSE_THEME[md_p['house']]} — so professional growth in these years comes as much through that "
                 f"channel as through direct career push. ")
     # direction by 10th lord sign element
-    car+=_career_direction(tenth_lord, tl, P)
+    # ---- weave relevant yogas into career & wealth ----
+    career_yogas=[y for y in chart_yogas if y['domain'] in ('career','identity')]
+    if career_yogas:
+        car+="<br><br><b>Special combinations in your chart affecting career:</b> "
+        car+=" ".join(f"<b>{y['name']}.</b> {y['meaning']}" for y in career_yogas)
     s['career']=car
 
     # ---------- WEALTH (deep) ----------
@@ -153,6 +199,10 @@ def interpret(chart):
     if signals:
         wealth+="<br><br>Notable signals: "+_join_sent(signals)+". "
     wealth+=_wealth_style(md, P)
+    wealth_yogas=[y for y in chart_yogas if y['domain'] in ('wealth','fortune')]
+    if wealth_yogas:
+        wealth+="<br><br><b>Special combinations affecting your wealth and fortune:</b> "
+        wealth+=" ".join(f"<b>{y['name']}.</b> {y['meaning']}" for y in wealth_yogas)
     s['wealth']=wealth
 
     # ---------- RELATIONSHIPS ----------

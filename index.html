@@ -597,10 +597,11 @@ function renderForecastHTML(d,place){
   ).join('');
   const readingBlocks=[
     ['Your foundation',s.foundation],['The period you are in',s.period],
+    ['The yogas in your chart',s.yogas],['Deeper chart lenses',s.deeper],
     ['Career & calling',s.career],['Wealth & finances',s.wealth],
     ['Your five-year timeline',s.timeline],['Relationships',s.relationships],
     ['Health & wellbeing',s.health],['Remedies',s.remedies]
-  ].map(([t,txt])=>`<div class="reading"><h4>${t}</h4><p>${txt}</p></div>`).join('');
+  ].filter(([t,txt])=>txt).map(([t,txt])=>`<div class="reading"><h4>${t}</h4><p>${txt}</p></div>`).join('');
   return `<div class="chart-card" style="margin-top:18px">
       <div class="chart-top">
         <div class="chart-id"><h3>${c.ascendant.sign} Ascendant</h3>

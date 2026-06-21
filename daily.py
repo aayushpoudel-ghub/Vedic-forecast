@@ -32,8 +32,9 @@ def positions(jd, FLG):
 def _house_from(planet_lon, moon_sign):
     return ((int(planet_lon//30) - moon_sign) % 12) + 1
 
-def compute_day(natal_moon_lon, md_lord, d):
-    """Core computation: overall + per-area scores for one day."""
+def compute_day(natal_moon_lon, md_lord, d, ad_lord=None):
+    """Core computation: overall + per-area scores for one day.
+    ad_lord (antardasha lord), if given, adds finer accuracy."""
     FLG=_setup()
     jd = swe.julday(d.year, d.month, d.day, 6.0)
     pos = positions(jd, FLG)
@@ -42,7 +43,7 @@ def compute_day(natal_moon_lon, md_lord, d):
     dmn = int(pos['Moon']//(360/27))            # day moon nakshatra
     dms = int(pos['Moon']//30)
 
-    # overall via Tara + Moon gochara + benefic/malefic + dasha lord
+    # overall via Tara + Moon gochara + benefic/malefic + dasha lords
     overall=0.0
     tara_idx=(dmn-nmn)%9; tname,tq=TARA_QUALITY[tara_idx]; overall+=tq*1.5
     moon_h=_house_from(pos['Moon'],nms); overall+=(1.0 if moon_h in GOCHARA_GOOD['Moon'] else -0.7)
@@ -52,6 +53,9 @@ def compute_day(natal_moon_lon, md_lord, d):
         h=_house_from(pos[mal],nms); overall+=(0.5 if h in GOCHARA_GOOD[mal] else -0.6)
     if md_lord in pos:
         h=_house_from(pos[md_lord],nms); overall+=(0.8 if h in GOCHARA_GOOD.get(md_lord,[3,6,11]) else -0.5)
+    # finer: antardasha lord's transit adds a smaller weight
+    if ad_lord and ad_lord in pos:
+        h=_house_from(pos[ad_lord],nms); overall+=(0.4 if h in GOCHARA_GOOD.get(ad_lord,[3,6,11]) else -0.25)
 
     # ---- per-area scores ----
     # LOVE/RELATIONSHIP: Venus position + Moon house (7-ish/emotional) 
