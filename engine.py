@@ -122,6 +122,54 @@ def compute_chart(year, month, day, hour, minute, lat, lon, tz_offset_hours):
     chart['sade_sati'] = rel in (11, 0, 1)
     chart['sade_sati_phase'] = {11:'rising (first phase)', 0:'peak (over your Moon)', 1:'setting (final phase)'}.get(rel, None)
 
+    # ----- Moon phase / Paksha (waxing vs waning) -----
+    sun_lon_natal = pos['Sun']['lon']
+    moon_lon_natal = pos['Moon']['lon']
+    elong = (moon_lon_natal - sun_lon_natal) % 360   # 0=new, 180=full
+    chart['moon_elongation'] = round(elong,2)
+    # Shukla (waxing) = 0..180 increasing toward full; Krishna (waning) = 180..360
+    chart['moon_waxing'] = elong <= 180
+    # Paksha Bala proxy 0..1: brightness (1 at full, 0 at new)
+    chart['moon_brightness'] = round((1 - abs(180-elong)/180), 3)
+    # tithi (lunar day 1-30)
+    chart['tithi'] = int(elong // 12) + 1
+
+    # ----- Graha Yuddha (planetary war): two of Mer/Ven/Mar/Jup/Sat within 1 deg -----
+    war_planets=['Mercury','Venus','Mars','Jupiter','Saturn']
+    wars=[]
+    for i in range(len(war_planets)):
+        for j in range(i+1, len(war_planets)):
+            a,b=war_planets[i],war_planets[j]
+            la=pos[a]['lon']; lb=pos[b]['lon']
+            sep=abs((la-lb+180)%360-180)
+            if sep < 1.0:
+                # lower longitude (degree) conventionally wins
+                winner = a if (la%30) < (lb%30) else b
+                loser = b if winner==a else a
+                wars.append({'winner':winner,'loser':loser,'sep':round(sep,3)})
+    chart['planetary_wars']=wars
+
+    # ----- Papa/Shubha Kartari around the Moon and the Lagna (hemming) -----
+    def hemming(target_house):
+        prev_h = ((target_house-2)%12)+1
+        next_h = (target_house%12)+1
+        prev_occ=[nm for nm,p in chart['planets'].items() if p['house']==prev_h and nm not in ('Rahu','Ketu')]
+        next_occ=[nm for nm,p in chart['planets'].items() if p['house']==next_h and nm not in ('Rahu','Ketu')]
+        # include nodes for malefic hemming
+        prev_all=[nm for nm,p in chart['planets'].items() if p['house']==prev_h]
+        next_all=[nm for nm,p in chart['planets'].items() if p['house']==next_h]
+        benefics={'Jupiter','Venus','Mercury','Moon'}
+        malefics={'Sun','Mars','Saturn','Rahu','Ketu'}
+        prev_b=any(x in benefics for x in prev_all); next_b=any(x in benefics for x in next_all)
+        prev_m=all(x in malefics for x in prev_all) and len(prev_all)>0
+        next_m=all(x in malefics for x in next_all) and len(next_all)>0
+        if prev_b and next_b: return 'shubha'   # benefics on both sides
+        if prev_m and next_m: return 'papa'      # malefics on both sides
+        return None
+    moon_h=chart['planets']['Moon']['house']
+    chart['moon_kartari']=hemming(moon_h)
+    chart['lagna_kartari']=hemming(1)
+
     return chart
 
 def compute_from_place(year, month, day, hour, minute, lat, lon):

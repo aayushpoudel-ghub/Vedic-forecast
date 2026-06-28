@@ -98,85 +98,150 @@ def daily_reading(natal_moon_lon, natal_asc_lon, md_lord, target_date=None):
 
 # ============ PLAIN-LANGUAGE, SPICY TEXT LAYER ============
 # No astrology jargon in output. People want WHAT, not WHY.
+# Quirky-best-friend voice. Each slot has MULTIPLE variants so it rotates daily
+# and the joke never gets stale. Selected by date-seed (stable within a day).
 
-# Openers by overall stars — sets the mood of the day
+# Openers by overall stars
 OPENER={
- 5:["Today is one of those days where things just go your way.",
-    "The wind is at your back today — make the most of it.",
-    "A genuinely lucky day is lining up for you."],
- 4:["Today leans in your favour — a good day overall.",
-    "Things should flow fairly smoothly for you today.",
-    "A positive day is shaping up — use the good energy."],
- 3:["Today is steady — no big highs, no big lows.",
-    "An ordinary, balanced day lies ahead.",
-    "Today asks you to keep things ticking along quietly."],
- 2:["Today may feel a little heavier than usual — go gently.",
-    "Some friction is likely today; don't force things.",
-    "A slightly tricky day — patience will get you through."],
- 1:["Today is a demanding one — take it slow and protect your peace.",
-    "A challenging day; keep your head down and avoid big risks.",
-    "Today tests you a little — rest, and don't push hard."],
+ 5:["Okay, today is straight-up golden — the universe is basically rolling out the red carpet for you.",
+    "Spoiler alert: today's got serious main-character energy. Go be iconic.",
+    "Today is one of those days where everything just *clicks*. Ride the wave.",
+    "Look, the cosmos pulled some strings for you today — this one's a total win."],
+ 4:["Today's giving good vibes — things should flow your way without much fuss.",
+    "Solid day incoming. The universe is quietly in your corner on this one.",
+    "Today leans your way — not fireworks, just smooth, easy wins.",
+    "Good news: today's got your back. Lean into it."],
+ 3:["Today is giving 'main character on a rest day' energy — chill, drama-free, just yours.",
+    "Today's a quiet one — no plot twists, no chaos, just a steady, do-your-thing kind of day.",
+    "Okay, today's pretty chill. Nothing wild, nothing scary — just cruise.",
+    "Today's that comfortable in-between vibe. Coast through it."],
+ 2:["Heads up — the universe hit the snooze button on your luck today. Go gentle.",
+    "Today's a *little* spicy, and not in the fun way. Don't force anything.",
+    "Okay, today's got some friction — nothing major, but don't push your luck.",
+    "Today's a 'stay in your lane and drink some water' kind of day. You've got this."],
+ 1:["Real talk: today's a tough one. Keep your head down, protect your peace, and just get through it.",
+    "Today the cosmos is clearly testing you. Survival mode is totally valid.",
+    "Okay, today's rough around the edges — go slow, skip the big risks, be kind to yourself.",
+    "Today's a stay-in-bed-if-you-can kind of day. No shame in playing it safe."],
 }
 
-# Love line by love_stars
+# LOVE — now arrays per rating
 LOVE={
- 5:"Your love life is glowing today. If you're with someone, expect real warmth, closeness, and maybe a moment that reminds you why you're together. If you're single, the energy is magnetic — don't be surprised if someone takes notice, and don't be shy about putting yourself out there.",
- 4:"Romance is favoured today. It's a good time to reach out to someone you care about, plan something together, or simply enjoy the people who matter to you. A small gesture of affection goes a long way right now.",
- 3:"Your love life is calm and steady today — no drama, no fireworks, just easy companionship. It's a fine day to simply be present with the people you love, without needing anything more from the moment.",
- 2:"Tread gently in matters of the heart today. Small misunderstandings can spark more easily than usual, so listen more than you speak, and don't read too much into a passing mood — yours or theirs.",
- 1:"Your relationships need patience today. Tempers may run short and feelings bruise easily, so avoid arguments, hold off on serious conversations, and don't make any emotional decisions you might look back on with regret.",
+ 5:["The stars are basically playing matchmaker for you right now. Got a partner? Plan something sweet. Flying solo? Flash that smile — a tiny gesture racks up *major* points today.",
+    "Your love life is straight-up glowing today. If you're coupled up, expect a swoon-worthy moment. If you're single, the energy is magnetic — don't be shy.",
+    "Cupid clearly clocked in early for you today. Warmth, butterflies, the whole rom-com package — say yes to it."],
+ 4:["Romance is on your side today. Reach out, plan a little something, or just soak up the people you love. A small sweet gesture goes a long way.",
+    "Love's got a soft glow today — a great moment to connect, text first, or be the one who makes the plan.",
+    "Today's a green light for the heart. Nothing dramatic, just easy warmth — lean into it."],
+ 3:["Love's on cruise control today — no drama, no fireworks, just cozy and easy. Perfect for a low-key night with your person (or your dog).",
+    "Your love life is chilling today. Nothing to fix, nothing to chase — just enjoy the easy company.",
+    "Romance is in comfy-sweatpants mode today. Steady, calm, drama-free. Honestly? Underrated."],
+ 2:["Okay, tread lightly in the love department today — little misunderstandings can snowball, so listen more than you fire off texts.",
+    "Hearts are a touch fragile today. Don't read into a weird mood — yours or theirs — and skip the heavy conversations.",
+    "Love's a bit prickly today. Bite your tongue on the spicy comeback and you'll dodge a pointless squabble."],
+ 1:["Relationship red flag day — and the flag is just 'be careful.' Avoid arguments, don't make big emotional calls, and let the dust settle.",
+    "The heart's running hot today, and not in a good way. Step back from any drama before it picks *you*.",
+    "Today's not the day to hash out the big feelings. Tempers are short — protect your peace and revisit it later."],
 }
 MONEY={
- 5:"Money matters look bright today. Keep your eyes open — an opportunity, a useful conversation, or even a small unexpected gain could come your way. If you've been waiting for a good moment to act on something financial, this is one.",
- 4:"A good day for your finances. It's favourable for earning, planning, or making a sensible purchase you've thought through. Your judgement around money is sound today, so trust it.",
- 3:"Your finances are steady today — nothing to worry about, nothing that demands action. A quiet day to simply keep things ticking along and avoid unnecessary spending.",
- 2:"Keep a watchful eye on money today. It's not the day for big purchases, risky bets, or financial decisions made in a hurry. If something can wait, let it wait.",
- 1:"Be careful with money today. Steer well clear of loans, gambling, and any deal that sounds too good to be true. Protect what you have rather than reaching for more.",
+ 5:["Money's looking up — keep your eyes peeled, because an opportunity (or a sweet little surprise) could land. If you've been waiting for a sign to make a smart move, this is it.",
+    "Your wallet's got good energy today. A useful tip, a small win, maybe an unexpected bit of cash — stay alert and say yes to the good stuff.",
+    "Okay, finance vibes are *immaculate* today. The door's open — walk through it (the smart way)."],
+ 4:["Solid money day. Good for earning, planning, or finally buying that thing you've actually thought through. Trust your gut here.",
+    "Your money sense is sharp today — a fine moment to plan, save, or make a sensible move.",
+    "Finances are quietly winning today. Nothing flashy, just steady green lights."],
+ 3:["Money's just... fine today. Nothing scary, nothing exciting. Keep it boring and skip the impulse buys.",
+    "Your finances are coasting today — steady as she goes. Maybe don't 'treat yourself' just because.",
+    "Wallet's on chill mode today. No moves required — just don't go wild on the checkout page."],
+ 2:["Okay, let's talk wallet: keep it zipped. Not the day to fund your sudden urge for an air fryer or a risky bet. If it can wait, let it wait.",
+    "Money's a little wobbly today. Big purchases? Risky bets? Hard pass. Leave it in the cart till tomorrow.",
+    "Today, your credit card and you should take a little break from each other. No big spends, no gambles."],
+ 1:["Hide your credit card from yourself today. Seriously — no loans, no gambles, no 'too good to be true' deals. Guard what you've got.",
+    "Financial danger-zone day. If it's not survival, it's a no. Protect the bag and walk away from anything shiny.",
+    "Today the money gods say: do nothing risky. No deals, no big buys, no lending. Just hold steady."],
 }
 WORK={
- 5:"Work flows beautifully today. It's a strong day to push a project forward, ask for something you want, or simply show what you're capable of — people are more likely to notice and respond well. Make your move.",
- 4:"A productive day at work is on the cards. You'll get things done, and your efforts are likely to be seen and appreciated. A good day to take initiative on something that matters to you.",
- 3:"Work ticks along normally today. Handle what's in front of you, keep steady, and you'll end the day with a quiet sense of having done enough. No need to force anything.",
- 2:"Work may feel like an uphill climb today. Focus on finishing what's already on your plate rather than starting something new, and be patient with colleagues who aren't quite on your wavelength.",
- 1:"Work could test your patience today. Expect a few delays or obstacles, keep your cool when things don't go to plan, and resist taking on more than you can realistically manage.",
+ 5:["Work is *chef's kiss* today. Push that project, ask for the thing, show 'em what you've got — people are watching and they'll be impressed. Make your move.",
+    "Career energy is peaking today. It's your moment to shine, pitch, or level up — don't sit on it.",
+    "Today work bends to your will. Big asks, bold moves, standout effort — all favored. Go get it."],
+ 4:["Productive-day alert: you'll get stuff done and people will actually notice. Good day to take the lead on something you care about.",
+    "Work's flowing today — momentum's on your side, and your effort won't go unseen.",
+    "Solid day at work incoming. Tackle the good stuff and enjoy the 'I'm on a roll' feeling."],
+ 3:["Work's coasting on autopilot today. Just handle what's in front of you, don't reinvent the wheel, and you'll log off feeling like you actually got things done.",
+    "Career mode: cruise control. Knock out your tasks, keep it steady, call it a win.",
+    "Work's pretty low-key today. No need to be a hero — just do the thing and clock out satisfied."],
+ 2:["Work might feel like wading through syrup today. Finish what's already on your plate instead of starting new chaos, and be patient with the slow folks.",
+    "Today work's a bit of an uphill walk. Keep your head down, wrap up loose ends, and don't pile on more.",
+    "Okay, work's testing you today. Lower the bar to 'finish what exists' and you'll be fine."],
+ 1:["Work's in gremlin mode today — expect delays and hiccups. Keep your cool, don't take on extra, and just ride it out.",
+    "Career chaos day. Stuff will go sideways; your superpower today is staying calm and not biting back.",
+    "Today work fights you at every turn. Survival, not heroics — finish the bare minimum and let it go."],
 }
 MOOD={
- 5:"Your energy and spirits are high today. You'll feel light, capable, and ready to take on whatever comes — exactly the kind of day to make the most of how good you feel.",
- 4:"You're in good spirits today. A positive, steady frame of mind carries you through, and you'll find it easier than usual to stay upbeat even if small things go sideways.",
- 3:"Your mood is even and settled today — neither soaring nor sinking, just steadily yourself. A grounded day to simply get on with things.",
- 2:"You may feel a little low or restless today. Be gentle with yourself, don't overthink things, and give yourself permission to rest if you need it. It's a passing cloud, not the weather.",
- 1:"Your energy dips today, and you may feel more sensitive or worn than usual. Rest where you can, go easy on yourself, and don't take on anything that drains you further. Tomorrow will feel lighter.",
+ 5:["You're radiating today — light, confident, ready for anything. This is your 'unstoppable' face. Wear it.",
+    "Your energy is *peak* today. You feel good, you look good, you've got this. Soak it up.",
+    "Main-character mood fully activated today. High energy, good vibes — go enjoy being you."],
+ 4:["You're in genuinely good spirits today — upbeat and steady, and small annoyances bounce right off you.",
+    "Good-mood day. You've got that easy, light feeling that makes everything smoother.",
+    "Your vibe is solidly positive today. Ride that good energy."],
+ 3:["Your mood's perfectly chilled — not flying too high, not sinking low. Just a solid, drama-free day to be you.",
+    "Emotionally, you're on an even keel today. Steady, grounded, nothing to overthink.",
+    "Today you're just... fine, in the best way. Calm, settled, no rollercoaster. Enjoy the flat road."],
+ 2:["You might feel a little 'meh' or restless today — totally normal. Be soft with yourself and don't spiral over small stuff. It's a passing cloud.",
+    "Energy's a touch low today. Go gentle, skip the overthinking, and rest if you need to. This mood is temporary.",
+    "Today's a bit of an emotional grey-sky day. Don't fight it — just be kind to yourself and wait for the sun."],
+ 1:["Running on empty today, and feeling everything a little too much. Rest where you can, go easy on yourself — tomorrow genuinely feels lighter.",
+    "Low-battery day for the soul. Be extra gentle with yourself and don't take on anything draining.",
+    "Today your energy dips and feelings run big. That's okay. Rest, breathe, and let yourself off the hook."],
 }
-# A closing nudge by overall
+# Closers by overall
 CLOSER={
- 5:"Bottom line: seize the day — this is a make-your-move kind of day.",
- 4:"Bottom line: a good day to take a small step toward something you want.",
- 3:"Bottom line: keep steady and let the day unfold naturally.",
- 2:"Bottom line: play it safe today and save big decisions for another time.",
- 1:"Bottom line: rest, protect your energy, and wait for a brighter day to act.",
+ 5:["Bottom line: this is a make-your-move day. Go be the main character.",
+    "TL;DR: the stars are showing off for you — don't waste it.",
+    "Bottom line: seize it. Days like this don't knock twice."],
+ 4:["Bottom line: take one small step toward something you want today. Momentum loves you right now.",
+    "TL;DR: good day to be a little brave. Go for it.",
+    "Bottom line: the door's open a crack — give it a push."],
+ 3:["Bottom line: keep it steady and let the day do its thing. No forcing required.",
+    "TL;DR: cruise, don't sprint. Today's a coasting day.",
+    "Bottom line: just be you and let it flow. Easy does it."],
+ 2:["Bottom line: play it safe and save the big stuff for a brighter day.",
+    "TL;DR: today's a 'stay in your lane' day. That's a strategy, not a cop-out.",
+    "Bottom line: low stakes only today. Be patient — better days are coming."],
+ 1:["Bottom line: rest, guard your energy, and wait this one out. You'll bounce back.",
+    "TL;DR: survival mode is the move today. Be kind to yourself.",
+    "Bottom line: do nothing risky, drink some water, and let tomorrow be the comeback."],
 }
 
 def _pick(lst, seed):
-    return lst[seed % len(lst)]
+    return lst[seed % len(lst)] if isinstance(lst,list) else lst
 
 def daily_text(r):
-    """6-7 lines, plain language, spicy, area-specific, detailed. No jargon."""
+    """6-7 lines, quirky best-friend voice, area-specific. Variants rotate by date."""
     seed = int(r['date'].replace('-',''))
     lines=[]
     lines.append(_pick(OPENER[r['stars']], seed))
-    # personalized highlight: name the standout (best or worst) area of the day
+    # personalized standout callout (rotate the phrasing too)
     areas={'love':r['love_stars'],'money':r['money_stars'],'work':r['work_stars'],'mood':r['mood_stars']}
     best_area=max(areas,key=areas.get); worst_area=min(areas,key=areas.get)
-    label={'love':'your love life','money':'your finances','work':'your work','mood':'your energy'}
+    label={'love':'your love life','money':'your wallet','work':'your work','mood':'your energy'}
+    STANDOUT_GOOD=[
+      f"Today's MVP? <b>{label[best_area]}</b> — that's where the magic's happening, so put your energy there.",
+      f"The glow-up zone today is <b>{label[best_area]}</b> — lean all the way in.",
+      f"If you do one thing today, lean into <b>{label[best_area]}</b> — that's where you're winning."]
+    STANDOUT_WATCH=[
+      f"The one thing to side-eye today? <b>{label[worst_area]}</b> — give it a little extra TLC and the rest flows fine.",
+      f"Keep one eye on <b>{label[worst_area]}</b> today — handle it gently and you're golden.",
+      f"Today's 'proceed with caution' sticker goes on <b>{label[worst_area]}</b>. Tread soft there."]
     if areas[best_area]>=4 and areas[best_area]-areas[worst_area]>=2:
-        lines.append(f"The standout today is <b>{label[best_area]}</b> — that's where the day really opens up for you, so put your attention there.")
+        lines.append(_pick(STANDOUT_GOOD, seed))
     elif areas[worst_area]<=2 and areas[best_area]-areas[worst_area]>=2:
-        lines.append(f"The one thing to keep an eye on today is <b>{label[worst_area]}</b> — give that part of life a little extra care and the rest of the day flows fine.")
-    lines.append(LOVE[r['love_stars']])
-    lines.append(MONEY[r['money_stars']])
-    lines.append(WORK[r['work_stars']])
-    lines.append(MOOD[r['mood_stars']])
-    lines.append(CLOSER[r['stars']])
+        lines.append(_pick(STANDOUT_WATCH, seed))
+    lines.append(_pick(LOVE[r['love_stars']], seed))
+    lines.append(_pick(MONEY[r['money_stars']], seed+1))
+    lines.append(_pick(WORK[r['work_stars']], seed+2))
+    lines.append(_pick(MOOD[r['mood_stars']], seed+3))
+    lines.append(_pick(CLOSER[r['stars']], seed))
     return lines
 
 # ============ MONTHLY ============
@@ -200,46 +265,42 @@ def monthly_reading(natal_moon_lon, natal_asc_lon, md_lord, year=None, month=Non
 
 # Monthly headline themes by area strength
 MONTH_LOVE={
- 5:"This is a beautiful month for love. If you're in a relationship, it deepens and feels more secure; if you're single, someone genuinely significant could come into your life, so stay open and say yes to invitations.",
- 4:"Romance is on the rise this month — a warm, promising time for your relationships. Existing bonds grow closer, and there's real potential for new connection if you're looking.",
- 3:"Your love life stays steady and comfortable this month. No storms, no surprises — just quiet companionship and the easy presence of the people who matter to you.",
- 2:"Love asks for patience this month. There may be a few bumps or misunderstandings, so keep communication clear and honest, and try not to jump to conclusions when things feel uncertain.",
- 1:"Be gentle in love this month, as relationships may hit a rough patch. Avoid ultimatums and big confrontations, give each other room to breathe, and trust that the strain will ease with time.",
+ 5:"Love-wise? This month is a whole vibe. Coupled up — things get deeper and cozier. Single — someone genuinely worth your time could stroll in, so say yes to the invites and keep your heart open.",
+ 4:"Romance is trending up this month. Existing bonds get warmer, and if you're looking, there's real potential for a spark. Put yourself out there.",
+ 3:"Love stays comfy and low-key this month — no storms, no plot twists, just easy companionship. Sometimes drama-free is exactly the win.",
+ 2:"Love needs a little patience this month. A few bumps and crossed wires are likely, so keep it honest, communicate clearly, and don't spiral over small stuff.",
+ 1:"Heads up — love hits a bumpy patch this month. Skip the ultimatums and big confrontations, give each other breathing room, and trust that this rough stretch passes.",
 }
 MONTH_MONEY={
- 5:"Money flows well this month. It's a strong period for income, and there's a real chance of a gain, a raise, or an opportunity you shouldn't let slip — keep your eyes open and act when the moment comes.",
- 4:"Finances look healthy this month — a good time to earn, save, and make a sensible investment. Your money sense is sound, so it's a fine stretch to plan ahead.",
- 3:"Your finances hold steady this month. Things stay manageable and calm, with no major swings either way — a good time to simply maintain and avoid unnecessary risk.",
- 2:"Keep a close eye on money this month. Avoid big spending and don't lend what you can't comfortably spare; it's a stretch for caution rather than bold financial moves.",
- 1:"Be financially careful this month. Steer clear of risky deals, loans, and large purchases, and focus on protecting what you have. This isn't the time to gamble on anything.",
+ 5:"Money's looking *good* this month — strong for income, and there's a real shot at a gain, a raise, or an opportunity worth grabbing. Stay sharp and pounce when it shows up.",
+ 4:"Finances are healthy this month — solid for earning, saving, and making a smart, planned-out move. Your money instincts are on point.",
+ 3:"Money holds steady this month — calm, manageable, no wild swings. A good stretch to just maintain and resist the urge to splurge.",
+ 2:"Keep money on a short leash this month. Big spends and risky bets can wait — and don't lend out what you can't comfortably wave goodbye to.",
+ 1:"Money needs guarding this month. Steer clear of risky deals, loans, and big purchases, and focus on protecting what you've got. Not the month to gamble on anything.",
 }
 MONTH_WORK={
- 5:"Your career takes off this month — a powerful time for recognition, progress, or a real step up. Put yourself forward boldly, because your efforts are far more likely than usual to be seen and rewarded.",
- 4:"Work goes well this month. It's productive and rewarding, with good chances to shine and be noticed by the people who matter. A strong month to take initiative.",
- 3:"Work stays on an even keel this month — steady, reliable progress through consistent effort. Nothing dramatic, but you'll end the month having moved things meaningfully forward.",
- 2:"Work may feel demanding this month. Push through patiently, focus on what you can control, and don't take on more than you can handle — it's a month for steady effort, not heroics.",
- 1:"A challenging month at work, with delays and pressure more likely than usual. Focus on finishing rather than starting, keep calm under stress, and remember that this heavier stretch is temporary.",
+ 5:"Career glow-up incoming — this month is big for recognition, progress, or a legit step up. Be bold and put yourself forward, because your effort is way more likely than usual to get noticed and rewarded.",
+ 4:"Work's firing on all cylinders this month — productive, rewarding, and full of chances to shine in front of the right people. Take the initiative.",
+ 3:"Work stays steady this month — reliable, consistent progress. Nothing flashy, but you'll close out the month having genuinely moved the needle.",
+ 2:"Work's a bit demanding this month. Pace yourself, focus on what you can actually control, and don't pile on more than you can carry. Steady beats heroic.",
+ 1:"Work's a grind this month — delays and pressure are likelier than usual. Focus on finishing over starting, keep your cool, and remember this heavier stretch is temporary.",
 }
 
 def monthly_text(mr, md_lord):
-    """A full, flowing paragraph — plain language, area-specific, engaging."""
+    """A full, flowing paragraph — quirky best-friend voice, area-specific, engaging."""
     parts=[]
-    # opening by overall
     o=mr['avg_stars']
-    if o>=4: parts.append(f"{mr['month']} is shaping up to be a genuinely good month for you.")
-    elif o==3: parts.append(f"{mr['month']} looks like a balanced, steady month overall.")
-    else: parts.append(f"{mr['month']} may test you in places, so it's a month to move carefully.")
-    # the three areas people care about
+    if o>=4: parts.append(f"Okay, {mr['month']} is shaping up to be a genuinely great month for you — here's the scoop.")
+    elif o==3: parts.append(f"{mr['month']} is looking like a steady, no-drama month overall. Here's how it breaks down.")
+    else: parts.append(f"Real talk: {mr['month']} might test you in a few spots, so it's a move-smart kind of month. Here's the lay of the land.")
     parts.append(MONTH_LOVE[mr['love_stars']])
     parts.append(MONTH_MONEY[mr['money_stars']])
     parts.append(MONTH_WORK[mr['work_stars']])
-    # best/worst days woven in plainly
     bd=', '.join(_ord(d) for d in mr['best_days'])
     hd=', '.join(_ord(d) for d in mr['hard_days'])
-    parts.append(f"Your luckiest days this month fall around {bd} — use them for anything important. "
-                 f"Take a little more care around {hd}, when things may feel heavier.")
-    # a hook to keep them coming back
-    parts.append("Check in each morning for your daily reading — that's where you'll catch the day-to-day shifts this overview can't show.")
+    parts.append(f"Mark your calendar: your luckiest days land around {bd} — that's when to make your big moves. "
+                 f"And maybe tread lightly around {hd}, when things might feel a little heavier.")
+    parts.append("Pro tip: check in each morning for your daily reading — that's where you'll catch the day-to-day plot twists this monthly overview can't capture.")
     return " ".join(parts)
 
 def _ord(n):

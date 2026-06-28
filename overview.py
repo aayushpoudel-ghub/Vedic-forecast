@@ -40,10 +40,11 @@ def current_chapter(chart, pstrength, convergence, life_ctx=None):
 
     # 2. the overall tone — are things broadly favourable or testing? (from convergence)
     if convergence:
-        scores=[a['score'] for a in convergence.values()]
+        area_items={k:v for k,v in convergence.items() if not k.startswith('_') and isinstance(v,dict)}
+        scores=[a['score'] for a in area_items.values()]
         avg=sum(scores)/len(scores)
-        strong_areas=[k for k,a in convergence.items() if a['verdict'] in ('very strong','strong')]
-        weak_areas=[k for k,a in convergence.items() if a['verdict'] in ('challenged','difficult')]
+        strong_areas=[k for k,a in area_items.items() if a['verdict'] in ('very strong','strong')]
+        weak_areas=[k for k,a in area_items.items() if a['verdict'] in ('challenged','difficult')]
         plain={'career':'your work and ambitions','wealth':'your finances','marriage':'your relationships',
                'health':'your wellbeing','education':'your learning and growth'}
         if avg>0.6:
@@ -60,15 +61,25 @@ def current_chapter(chart, pstrength, convergence, life_ctx=None):
             wa=' and '.join(plain[a] for a in weak_areas[:2])
             parts.append(f"The area that needs the most care is {wa} — not a disaster, but somewhere to move thoughtfully and not force things.")
 
-    # 4. forward-looking, no dates, builds anticipation
-    if md=='Jupiter':
-        parts.append("The bigger picture ahead is bright: you're entering one of the most expansive and rewarding stretches of your life, and the next few years carry real opportunity for growth and success — if you reach for it.")
-    elif md in ('Saturn','Ketu','Rahu'):
-        parts.append("The road ahead asks for patience, but it's leading somewhere meaningful. The challenges of this period are shaping something lasting, and there's genuine light and reward waiting on the other side of the effort.")
-    else:
-        parts.append("The years ahead hold real movement and possibility for you — turning points that will shape the direction of your life, with both opportunities to seize and moments that will ask for care.")
+    # 3.5 the "how your life rewards you" signature — deeply personal hook
+    try:
+        import signature as _sig
+        sg=_sig.reward_signature(chart, pstrength)
+        # strip the leading "Here's something..." framing for flow, keep the substance
+        sig_line=sg['text']
+        parts.append(sig_line)
+    except Exception:
+        pass
 
-    parts.append("Your full five-year forecast maps exactly when these openings and turning points arrive, month by month — so you know not just what's coming, but when to act.")
+    # 4. forward-looking, no dates, builds anticipation — quirky & exciting
+    if md=='Jupiter':
+        parts.append("And the bigger picture? Spoiler alert: your next few years are absolutely stacked. You're stepping into an era where doors don't just open — they practically fly off the hinges. Opportunities, growth, big level-ups, all on the menu.")
+    elif md in ('Saturn','Ketu','Rahu'):
+        parts.append("And the bigger picture? It's a slow burn — but a worth-it one. The grind you're in is quietly building something solid, and there's a genuine payoff waiting on the other side of the effort. Plot twist: the hard part is setting up the comeback.")
+    else:
+        parts.append("And the bigger picture? It's full of movement — real turning points that'll shape where your life goes next, with golden opportunities to grab and a few moments that'll keep you on your toes.")
+
+    parts.append("The catch? You've gotta know exactly when to make your move — and that's the whole point of your full five-year forecast. It maps your turning points month by month, so you never miss your cue.")
 
     return " ".join(parts)
 

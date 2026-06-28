@@ -518,7 +518,17 @@ function areaChips(d){
 }
 
 function renderDaily(d){
-  const body=d.lines.map(l=>`<p class="daily-line">${l}</p>`).join('');
+  // first line = opener, last = bottom line; middle 4 are the labeled areas (+ optional standout)
+  const lines=d.lines.slice();
+  const opener=lines.shift();
+  const closer=lines.pop();
+  // detect optional standout line (it contains "standout" or "keep an eye")
+  let standout='';
+  if(lines.length>4){ standout=lines.shift(); }
+  const labels=['Love','Finance','Work','Energy'];
+  const labeled=lines.map((txt,i)=>
+    `<div class="area-line"><span class="area-tag">${labels[i]||''}</span><span class="area-txt">${txt}</span></div>`
+  ).join('');
   document.getElementById('result').innerHTML=`
     <div class="chart-card">
       <div class="daily-head">
@@ -529,7 +539,10 @@ function renderDaily(d){
         <div class="daily-meta">${d.ascendant} rising · Moon in ${d.moon_sign}</div>
       </div>
       ${areaChips(d)}
-      <div class="daily-body">${body}</div>
+      <p class="daily-line" style="font-size:19px;font-weight:500">${opener}</p>
+      ${standout?`<p class="daily-line">${standout}</p>`:''}
+      <div class="area-lines">${labeled}</div>
+      <p class="daily-line daily-bottomline">${closer}</p>
     </div>
     <div class="funnel">
       <div class="funnel-q">Want to see how your whole month unfolds?</div>
@@ -590,9 +603,9 @@ async function showForecast(){
     </div>`:''}
     <div class="chart-card coming-soon">
       <div class="cs-badge">Coming soon</div>
-      <h3 class="cs-title">Your full five-year forecast is on its way.</h3>
-      <p class="cs-text">The overview above is just a glimpse. The full forecast maps your career, wealth, relationships, and health across the next five years — month by month, turning point by turning point, so you know exactly when each opening arrives.</p>
-      <p class="cs-text" style="font-weight:500;color:#f3ecdd">You're clearly someone who wants the bigger picture — and it's almost ready. Keep checking your daily reading; you'll be among the first to know when the full forecast launches.</p>
+      <h3 class="cs-title">Your full five-year forecast is *almost* here.</h3>
+      <p class="cs-text">That little glimpse above? Just the trailer. The full forecast maps your career, love, money, and health across the next five years — month by month, turning point by turning point — so you know exactly when to make your move.</p>
+      <p class="cs-text" style="font-weight:500;color:#f3ecdd">You're clearly the type who wants the whole story — and it's almost ready to drop. Keep checking your daily reading; you'll be first in line when it launches. ✨</p>
       <div class="cs-spark">✦</div>
     </div>`;
   btn.closest('.funnel').replaceWith(block);
@@ -608,6 +621,7 @@ function renderForecastHTML(d,place){
   ).join('');
   const readingBlocks=[
     ['Your foundation',s.foundation],['The period you are in',s.period],
+    ['How your life rewards you',s.signature],
     ['The yogas in your chart',s.yogas],['Deeper chart lenses',s.deeper],
     ['Career & calling',s.career],['Wealth & finances',s.wealth],
     ['Your five-year timeline',s.timeline],['Relationships',s.relationships],

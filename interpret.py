@@ -181,7 +181,8 @@ def interpret(chart):
             f"tend to carry through with real force in your life. Your <b>weakest is {weakest[0]}</b> ({weakest[1]['verdict']}), "
             f"the area that most needs conscious support and care. ")
         # area verdicts, ordered strongest-first
-        area_order=sorted(convergence.items(), key=lambda x:-x[1]['score'])
+        area_items={k:v for k,v in convergence.items() if not k.startswith('_') and isinstance(v,dict)}
+        area_order=sorted(area_items.items(), key=lambda x:-x[1]['score'])
         verdicts=[]
         for area,a in area_order:
             label={'career':'Career','wealth':'Wealth','marriage':'Marriage & partnership',
@@ -194,7 +195,7 @@ def interpret(chart):
             positive_exc=[e for e in chart_exceptions if e['adjust']>0]
             if positive_exc:
                 syn_text+="<br><br><b>Hidden strengths in your chart</b> — subtle but important factors that a surface reading would miss: "
-                syn_text+=" ".join(e['note'] for e in positive_exc[:3])
+                syn_text+=" ".join(e['note'] for e in positive_exc[:4])
         s['synthesis']=syn_text
 
     # ---------- CAREER (deep) ----------
@@ -304,6 +305,15 @@ def interpret(chart):
         f"{_remedy_action(md)}. Gemstones for Saturn, Rahu, and Ketu (Blue Sapphire, Hessonite, Cat's Eye) "
         f"should never be worn without expert in-person assessment.")
     s['remedies']=rem
+
+    # ---------- HOW YOUR LIFE REWARDS YOU (merit vs luck signature) ----------
+    if pstrength:
+        try:
+            import signature as _sig
+            sg=_sig.reward_signature(chart, pstrength)
+            s['signature']=sg['text']
+        except Exception:
+            pass
 
     # ---------- THE 5-YEAR TIMELINE ----------
     s['timeline']=_build_timeline(chart, lords, P)
